@@ -19,8 +19,8 @@ class NepaliPaymentServiceProvider extends ServiceProvider
         $this->app->singleton(PaymentManager::class, fn() => new PaymentManager());
 
         $this->app->singleton(Esewa::class, fn() => new Esewa(
-            config('nepali-payment.esewa.secret_key'),
             config('nepali-payment.esewa.product_code'),
+            config('nepali-payment.esewa.secret_key'),
         ));
 
         $this->app->singleton(Khalti::class, fn() => new Khalti(

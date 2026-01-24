@@ -1,6 +1,7 @@
 {
     "name": "jaap/laravel-nepali-payment",
     "type": "library",
+    "version": "0.0.1",
     "require": {
         "php": "^8.1",
         "kbk/nepali-payment-gateway": "^1.0",

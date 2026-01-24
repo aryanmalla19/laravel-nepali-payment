@@ -10,7 +10,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Jaap\\NepaliPayment\\": "src/"
+            "JaapTech\\NepaliPayment\\": "src/"
         }
     },
     "authors": [

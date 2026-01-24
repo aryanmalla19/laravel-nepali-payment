@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jaap\NepaliPayment\Services;
+namespace JaapTech\NepaliPayment\Services;
 
 class PaymentManager
 {

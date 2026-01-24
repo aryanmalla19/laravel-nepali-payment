@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Jaap\NepaliPayment;
+namespace JaapTech\NepaliPayment;
 
 use Illuminate\Support\ServiceProvider;
-use Jaap\NepaliPayment\Services\PaymentManager;
+use JaapTech\NepaliPayment\Services\PaymentManager;
 use Kbk\NepaliPaymentGateway\Epay\ConnectIps;
 use Kbk\NepaliPaymentGateway\Epay\Esewa;
 use Kbk\NepaliPaymentGateway\Epay\Khalti;
@@ -29,7 +29,7 @@ class NepaliPaymentServiceProvider extends ServiceProvider
         ));
 
         $this->app->singleton(ConnectIps::class, fn() => new ConnectIps([
-            'base_url' => config('nepali-payment.connectips.environment') === 'test' ? 'https://connectips.com' : 'https://uat.connectips.com',
+            'base_url' => config('nepali-payment.connectips.environment') === 'test' ? 'https://uat.connectips.com' : 'https://connectips.com',
             'merchant_id' => config('nepali-payment.connectips.merchant_id'),
             'app_id' => config('nepali-payment.connectips.app_id'),
             'app_name' => config('nepali-payment.connectips.app_name'),

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Jaap\NepaliPayment\Facades;
+namespace JaapTech\NepaliPayment\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use Jaap\NepaliPayment\Services\PaymentManager;
+use JaapTech\NepaliPayment\Services\PaymentManager;
 
 class NepaliPayment extends Facade
 {

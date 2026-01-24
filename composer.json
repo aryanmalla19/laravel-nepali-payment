@@ -2,7 +2,9 @@
     "name": "jaap/laravel-nepali-payment",
     "type": "library",
     "require": {
-        "kbk/nepali-payment-gateway": "^1.0"
+        "php": "^8.1",
+        "kbk/nepali-payment-gateway": "^1.0",
+        "illuminate/support": "^10.0|^11.0|^12.0"
     },
     "license": "MIT",
     "autoload": {
@@ -15,5 +17,15 @@
             "name": "Aryan Malla",
             "email": "aryanmalla19@gmail.com"
         }
-    ]
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Jaap\\NepaliPayment\\NepaliPaymentServiceProvider"
+            ],
+            "aliases": {
+                "NepaliPayment": "Jaap\\NepaliPayment\\Facades\\NepaliPayment"
+            }
+        }
+    }
 }

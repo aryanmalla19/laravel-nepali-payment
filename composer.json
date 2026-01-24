@@ -1,5 +1,5 @@
 {
-    "name": "jaap/laravel-nepali-payment",
+    "name": "jaap-tech/laravel-nepali-payment",
     "type": "library",
     "version": "0.0.1",
     "require": {
@@ -22,10 +22,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Jaap\\NepaliPayment\\NepaliPaymentServiceProvider"
+                "JaapTech\\NepaliPayment\\NepaliPaymentServiceProvider"
             ],
             "aliases": {
-                "NepaliPayment": "Jaap\\NepaliPayment\\Facades\\NepaliPayment"
+                "NepaliPayment": "JaapTech\\NepaliPayment\\Facades\\NepaliPayment"
             }
         }
     }

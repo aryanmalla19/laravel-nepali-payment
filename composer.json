@@ -1,0 +1,19 @@
+{
+    "name": "jaap/laravel-nepali-payment",
+    "type": "library",
+    "require": {
+        "kbk/nepali-payment-gateway": "^1.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Jaap\\NepaliPayment\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Aryan Malla",
+            "email": "aryanmalla19@gmail.com"
+        }
+    ]
+}

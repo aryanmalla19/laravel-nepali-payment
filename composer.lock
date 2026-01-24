@@ -1,0 +1,81 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "35fbe315b8dd30e7c54770e357f8e9cc",
+    "packages": [
+        {
+            "name": "kbk/nepali-payment-gateway",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aryanmalla19/nepali-payment-gateway.git",
+                "reference": "d46d3f75f4b1279797334540c6bc17977f0dc9d6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aryanmalla19/nepali-payment-gateway/zipball/d46d3f75f4b1279797334540c6bc17977f0dc9d6",
+                "reference": "d46d3f75f4b1279797334540c6bc17977f0dc9d6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-openssl": "*",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.92",
+                "mockery/mockery": "^1.6",
+                "phpdocumentor/phpdocumentor": "^3.9",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Kbk\\NepaliPaymentGateway\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aryan Malla",
+                    "email": "aryanmalla19@gmail.com"
+                }
+            ],
+            "description": "Nepali Payment Gateway integration in PHP language. It includes eSewa, Khalti, ConnectIps, etc.",
+            "homepage": "https://github.com/aryanmalla19/nepali-payment-gateway",
+            "keywords": [
+                "ConnectIps",
+                "api",
+                "esewa",
+                "gateway",
+                "khalti",
+                "nepal",
+                "payment",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/aryanmalla19/nepali-payment-gateway/issues",
+                "source": "https://github.com/aryanmalla19/nepali-payment-gateway/tree/v1.0.2"
+            },
+            "time": "2026-01-02T16:44:55+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}

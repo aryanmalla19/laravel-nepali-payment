@@ -12,14 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payment_refunds', function (Blueprint $table) {
-            // Determine UUID type from config
-            $uuidType = config('nepali-payment.database.uuid_type', 'uuid');
-            if ($uuidType === 'ulid') {
-                $table->ulid('id')->primary();
-            } else {
-                $table->uuid('id')->primary();
-            }
 
+            $table->uuid('id')->primary();
             // Foreign key to payments table
             $table->uuid('payment_id');
             $table->foreign('payment_id')

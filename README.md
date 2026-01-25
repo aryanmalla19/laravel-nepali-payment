@@ -14,7 +14,7 @@ A comprehensive Laravel package for integrating Nepali payment gateways (eSewa, 
 - Store gateway responses
 - Manage refunds
 - Polymorphic payment associations
-- UUID/Ulid support
+- UUID support
 
 ✅ **Event System**
 - Payment lifecycle events
@@ -65,7 +65,6 @@ return [
     ],
     'database' => [
         'enabled' => env('NEPALI_PAYMENT_DATABASE_ENABLED', false),
-        'uuid_type' => env('NEPALI_PAYMENT_UUID_TYPE', 'uuid'), // 'uuid' or 'ulid'
     ],
 ];
 ```
@@ -99,7 +98,6 @@ CONNECTIPS_ENVIRONMENT=test  # or 'live'
 **Database Integration:**
 ```
 NEPALI_PAYMENT_DATABASE_ENABLED=true
-NEPALI_PAYMENT_UUID_TYPE=uuid  # or 'ulid'
 ```
 
 ## Quick Start
@@ -530,4 +528,4 @@ For issues, questions, or contributions, visit the [GitHub repository](https://g
 - Added helper functions for common operations
 - Added comprehensive query scopes for filtering payments
 - Support for polymorphic payment associations
-- UUID/Ulid configuration for primary keys
+- UUID/] configuration for primary keys

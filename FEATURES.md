@@ -314,7 +314,7 @@ NepaliPayment::getPaymentsByGateway(...)
 ### 7. Database Schema
 
 **payments table:**
-- id (UUID/Ulid primary key)
+- id (UUID primary key)
 - gateway (enum: esewa, khalti, connectips)
 - status (enum: pending, processing, completed, failed, refunded, cancelled)
 - payable_type & payable_id (polymorphic)
@@ -329,7 +329,7 @@ NepaliPayment::getPaymentsByGateway(...)
 - created_at, updated_at (timestamps)
 
 **payment_refunds table:**
-- id (UUID/Ulid primary key)
+- id (UUID primary key)
 - payment_id (FK, cascade delete)
 - refund_amount (decimal)
 - refund_reason (enum)
@@ -349,35 +349,13 @@ NepaliPayment::getPaymentsByGateway(...)
 // config/nepali-payment.php
 'database' => [
     'enabled' => env('NEPALI_PAYMENT_DATABASE_ENABLED', false),
-    'uuid_type' => env('NEPALI_PAYMENT_UUID_TYPE', 'uuid'), // 'uuid' or 'ulid'
 ]
 ```
 
 **Environment Variables:**
 ```
 NEPALI_PAYMENT_DATABASE_ENABLED=true  # Enable/disable database integration
-NEPALI_PAYMENT_UUID_TYPE=uuid         # Choose 'uuid' or 'ulid' for primary keys
 ```
-
----
-
-## Feature Comparison
-
-| Feature | Before | After |
-|---------|--------|-------|
-| Payment gateways | 3 | 3 (unchanged) |
-| Models | 0 | 2 |
-| Enums | 0 | 3 |
-| Events | 0 | 5 |
-| Database tables | 0 | 2 |
-| Query scopes | 0 | 10 |
-| Helper functions | 0 | 7 |
-| PaymentManager methods | 6 | 21 |
-| Facade methods | 3 | 15 |
-| Configuration options | 9 | 11 |
-| Lines of code | 189 | 2,200+ |
-
----
 
 ## Use Cases
 
@@ -412,33 +390,6 @@ Use metadata to track which merchant received the payment.
 ✅ **JSON storage** - Store any gateway response for debugging
 ✅ **Metadata** - Attach custom data to payments
 ✅ **UUID/Ulid support** - Modern primary key options
-
----
-
-## Backward Compatibility
-
-✅ **100% backward compatible**
-- Existing facade methods work unchanged
-- Gateway implementations untouched
-- Database integration is purely optional
-- No breaking changes to existing APIs
-
-Users can continue using the package without database integration!
-
----
-
-## Next Steps (Recommended Future Additions)
-
-1. **Webhook handling** - Async payment confirmations from gateways
-2. **Scheduled tasks** - Auto-reconciliation, retry failed payments
-3. **Testing suite** - Comprehensive unit and integration tests
-4. **API routes** - Pre-built webhook endpoints
-5. **Batch operations** - Bulk refunds, bulk exports
-6. **Admin dashboard** - View payment history and analytics
-7. **Notifications** - Email/SMS for payment events
-8. **Logging** - Detailed operation logs
-9. **Rate limiting** - Protect against abuse
-10. **Multi-currency** - Support for multiple currencies
 
 ---
 

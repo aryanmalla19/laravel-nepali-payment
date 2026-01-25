@@ -24,11 +24,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | Configure database integration for tracking and managing payments.
-    | Set to false to disable database logging of payments.
+    | Set true to enable database logging of payments. Default value is false
     |
     */
     'database' => [
         'enabled' => env('NEPALI_PAYMENT_DATABASE_ENABLED', false),
-        'uuid_type' => env('NEPALI_PAYMENT_UUID_TYPE', 'uuid'), // 'uuid' or 'ulid'
     ],
 ];

@@ -16,7 +16,7 @@ use Kbk\NepaliPaymentGateway\Epay\Khalti;
 
 /**
  * PaymentManager - Orchestrator for payment operations
- * 
+ *
  * Manages gateway access and delegates database operations to specialized services.
  * Wraps gateways with interceptors for automatic payment logging when enabled.
  */
@@ -39,6 +39,7 @@ class PaymentManager
     public function esewa(): Esewa
     {
         $esewa = $this->drivers['esewa'] ??= $this->createEsewa();
+
         return $this->wrapWithInterceptor($esewa, 'esewa');
     }
 
@@ -48,6 +49,7 @@ class PaymentManager
     public function khalti(): Khalti
     {
         $khalti = $this->drivers['khalti'] ??= $this->createKhalti();
+
         return $this->wrapWithInterceptor($khalti, 'khalti');
     }
 
@@ -57,6 +59,7 @@ class PaymentManager
     public function connectips(): ConnectIps
     {
         $connectips = $this->drivers['connectips'] ??= $this->createConnectIps();
+
         return $this->wrapWithInterceptor($connectips, 'connectips');
     }
 
@@ -65,7 +68,7 @@ class PaymentManager
      */
     private function wrapWithInterceptor(object $gateway, string $gatewayName): object
     {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             return $gateway;
         }
 

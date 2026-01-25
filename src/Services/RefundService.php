@@ -28,13 +28,13 @@ class RefundService
         ?string $notes = null,
         int|string|null $requestedBy = null
     ): PaymentRefund {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             throw DatabaseException::disabled();
         }
 
         try {
             // Validate payment can be refunded
-            if (!$payment->canBeRefunded()) {
+            if (! $payment->canBeRefunded()) {
                 throw PaymentException::cannotBeRefunded($payment->status->value);
             }
 
@@ -47,8 +47,8 @@ class RefundService
             }
 
             // Convert reason to enum if string
-            $refundReasonEnum = $reason instanceof RefundReason 
-                ? $reason 
+            $refundReasonEnum = $reason instanceof RefundReason
+                ? $reason
                 : RefundReason::tryFrom($reason) ?? RefundReason::OTHER;
 
             $refund = PaymentRefund::create([
@@ -77,7 +77,7 @@ class RefundService
         array $responseData = [],
         bool $isSuccess = true
     ): void {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             return;
         }
 
@@ -88,7 +88,7 @@ class RefundService
                 $refund->markAsFailed($responseData['error'] ?? 'Refund processing failed');
             }
 
-            if (!empty($responseData)) {
+            if (! empty($responseData)) {
                 $refund->update(['gateway_response' => $responseData]);
             }
         } catch (\Exception $e) {

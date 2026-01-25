@@ -6,7 +6,6 @@ namespace JaapTech\NepaliPayment\Services;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Str;
-use JaapTech\NepaliPayment\Events\PaymentCompletedEvent;
 use JaapTech\NepaliPayment\Events\PaymentFailedEvent;
 use JaapTech\NepaliPayment\Events\PaymentInitiatedEvent;
 use JaapTech\NepaliPayment\Events\PaymentProcessingEvent;
@@ -50,7 +49,7 @@ class GatewayPaymentInterceptor
                     'gateway' => $this->gatewayName,
                     'data' => $data,
                 ]);
-                
+
                 throw DatabaseException::createFailed($this->gatewayName, $e->getMessage());
             }
 
@@ -186,6 +185,7 @@ class GatewayPaymentInterceptor
 
         if (method_exists($response, 'getStatus')) {
             $status = $response->getStatus();
+
             return in_array(strtolower($status), ['success', 'completed', 'approved']);
         }
 

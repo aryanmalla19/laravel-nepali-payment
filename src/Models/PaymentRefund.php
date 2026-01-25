@@ -116,7 +116,7 @@ class PaymentRefund extends Model
         $this->update($data);
 
         // Mark parent payment as refunded if no more pending refunds
-        if (!$this->payment->refunds()->pending()->exists()) {
+        if (! $this->payment->refunds()->pending()->exists()) {
             $this->payment->markAsRefunded();
         }
     }

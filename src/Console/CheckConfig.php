@@ -21,16 +21,17 @@ class CheckConfig extends Command
         foreach ($gateways as $gateway) {
             $config = config("nepali-payment.$gateway");
 
-            if (!$config) {
+            if (! $config) {
                 $this->error("- $gateway: config not found");
+
                 continue;
             }
 
             // List required keys per gateway
-            $requiredKeys = match($gateway) {
+            $requiredKeys = match ($gateway) {
                 'esewa' => ['product_code', 'secret_key'],
                 'khalti' => ['secret_key', 'environment'],
-                'connectips' => ['merchant_id','app_id','app_name','password','private_key_path','environment'],
+                'connectips' => ['merchant_id', 'app_id', 'app_name', 'password', 'private_key_path', 'environment'],
             };
 
             $missingKeys = [];
@@ -41,7 +42,7 @@ class CheckConfig extends Command
             }
 
             if ($missingKeys) {
-                $this->error("- $gateway: missing keys: " . implode(', ', $missingKeys));
+                $this->error("- $gateway: missing keys: ".implode(', ', $missingKeys));
             } else {
                 $this->info("- $gateway: ✅ configured");
             }

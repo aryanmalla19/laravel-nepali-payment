@@ -3,7 +3,7 @@
 return [
     'esewa' => [
         'product_code' => env('ESEWA_PRODUCT_CODE'),
-        'secret_key'   => env('ESEWA_SECRET_KEY'),
+        'secret_key' => env('ESEWA_SECRET_KEY'),
     ],
     'khalti' => [
         'secret_key' => env('KHALTI_SECRET_KEY'),

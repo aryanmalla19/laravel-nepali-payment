@@ -17,9 +17,9 @@ return new class extends Migration
             // Foreign key to payments table
             $table->uuid('payment_id');
             $table->foreign('payment_id')
-                  ->references('id')
-                  ->on('payments')
-                  ->cascadeOnDelete();
+                ->references('id')
+                ->on('payments')
+                ->cascadeOnDelete();
 
             // Refund Details
             $table->decimal('refund_amount', 10, 2);

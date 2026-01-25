@@ -58,6 +58,7 @@ class Payment extends Model
     public function scopeByStatus($query, PaymentStatus|string $status)
     {
         $statusValue = $status instanceof PaymentStatus ? $status->value : $status;
+
         return $query->where('status', $statusValue);
     }
 
@@ -107,7 +108,7 @@ class Payment extends Model
     public function scopeForPayable($query, string $payableType, int|string $payableId)
     {
         return $query->where('payable_type', $payableType)
-                     ->where('payable_id', $payableId);
+            ->where('payable_id', $payableId);
     }
 
     /**

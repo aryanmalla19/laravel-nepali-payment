@@ -28,7 +28,7 @@ class PaymentService
         int|string|null $payableId = null,
         array $metadata = []
     ): Payment {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             throw DatabaseException::disabled();
         }
 
@@ -63,7 +63,7 @@ class PaymentService
         array $verificationData,
         bool $isSuccess = true
     ): void {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             return;
         }
 
@@ -94,7 +94,7 @@ class PaymentService
         ?string $gatewayTransactionId = null,
         array $responseData = []
     ): void {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             return;
         }
 
@@ -108,7 +108,7 @@ class PaymentService
                 $updateData['gateway_transaction_id'] = $gatewayTransactionId;
             }
 
-            if (!empty($responseData)) {
+            if (! empty($responseData)) {
                 $updateData['gateway_response'] = $responseData;
             }
 
@@ -125,7 +125,7 @@ class PaymentService
         Payment $payment,
         ?string $reason = null
     ): void {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             return;
         }
 

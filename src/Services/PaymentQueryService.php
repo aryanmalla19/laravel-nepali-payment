@@ -19,7 +19,7 @@ class PaymentQueryService
      */
     public function findByReference(string $referenceId): ?Payment
     {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             return null;
         }
 
@@ -31,7 +31,7 @@ class PaymentQueryService
      */
     public function findByGatewayId(string $gatewayTransactionId): ?Payment
     {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             return null;
         }
 
@@ -43,7 +43,7 @@ class PaymentQueryService
      */
     public function getByStatus(PaymentStatus|string $status): Builder
     {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             throw DatabaseException::disabled();
         }
 
@@ -55,7 +55,7 @@ class PaymentQueryService
      */
     public function getByGateway(string $gateway): Builder
     {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             throw DatabaseException::disabled();
         }
 
@@ -67,7 +67,7 @@ class PaymentQueryService
      */
     public function getForPayable(string $payableType, int|string $payableId): Builder
     {
-        if (!$this->isDatabaseEnabled()) {
+        if (! $this->isDatabaseEnabled()) {
             throw DatabaseException::disabled();
         }
 

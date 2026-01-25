@@ -8,7 +8,6 @@ enum NepaliPaymentGateway: string
     case KHALTI = 'khalti';
     case CONNECTIPS = 'connectips';
 
-
     /**
      * Get human-readable label for the gateways.
      */

@@ -12,7 +12,10 @@
     "autoload": {
         "psr-4": {
             "JaapTech\\NepaliPayment\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "authors": [
         {

@@ -17,4 +17,18 @@ return [
         'password' => env('CONNECTIPS_PASSWORD'),
         'environment' => strtolower(env('CONNECTIPS_ENVIRONMENT', 'test')),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure database integration for tracking and managing payments.
+    | Set to false to disable database logging of payments.
+    |
+    */
+    'database' => [
+        'enabled' => env('NEPALI_PAYMENT_DATABASE_ENABLED', false),
+        'uuid_type' => env('NEPALI_PAYMENT_UUID_TYPE', 'uuid'), // 'uuid' or 'ulid'
+    ],
 ];

@@ -23,6 +23,14 @@ class NepaliPaymentServiceProvider extends ServiceProvider
             __DIR__ . '/../config/nepali-payment.php' => $this->app->configPath('nepali-payment.php')
         ], 'nepali-payment-config');
 
+        // Publish migrations
+        $this->publishes([
+            __DIR__ . '/../database/migrations' => $this->app->databasePath('migrations')
+        ], 'nepali-payment-migrations');
+
+        // Load migrations from package
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CheckConfig::class,

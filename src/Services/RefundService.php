@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace JaapTech\NepaliPayment\Services;
 
 use Illuminate\Contracts\Config\Repository;
-use JaapTech\NepaliPayment\Enums\RefundReason;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Exceptions\PaymentException;
-use JaapTech\NepaliPayment\Models\Payment;
+use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use JaapTech\NepaliPayment\Models\PaymentRefund;
 
 class RefundService
@@ -20,17 +19,16 @@ class RefundService
 
     /**
      * Create a refund record for a payment.
+     * @throws DatabaseException|PaymentException
      */
     public function createRefund(
-        Payment $payment,
-        float $refundAmount,
-        RefundReason|string $reason = RefundReason::USER_REQUEST,
-        ?string $notes = null,
-        int|string|null $requestedBy = null
+        PaymentTransaction  $payment,
+        float               $refundAmount,
+        ?string             $reason = null,
+        ?string             $notes = null,
+        int|string|null     $requestedBy = null
     ): PaymentRefund {
-        if (! $this->isDatabaseEnabled()) {
-            throw DatabaseException::disabled();
-        }
+        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
             // Validate payment can be refunded
@@ -46,22 +44,16 @@ class RefundService
                 );
             }
 
-            // Convert reason to enum if string
-            $refundReasonEnum = $reason instanceof RefundReason
-                ? $reason
-                : RefundReason::tryFrom($reason) ?? RefundReason::OTHER;
-
-            $refund = PaymentRefund::create([
+            return PaymentRefund::create([
                 'payment_id' => $payment->id,
                 'refund_amount' => $refundAmount,
-                'refund_reason' => $refundReasonEnum,
+                'refund_reason' => $reason,
                 'refund_status' => 'pending',
                 'notes' => $notes,
                 'requested_by' => $requestedBy,
                 'requested_at' => now(),
             ]);
 
-            return $refund;
         } catch (PaymentException $e) {
             throw $e;
         } catch (\Exception $e) {
@@ -71,15 +63,14 @@ class RefundService
 
     /**
      * Process a refund with a gateway.
+     * @throws DatabaseException
      */
     public function processRefund(
         PaymentRefund $refund,
         array $responseData = [],
         bool $isSuccess = true
     ): void {
-        if (! $this->isDatabaseEnabled()) {
-            return;
-        }
+        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
             if ($isSuccess) {

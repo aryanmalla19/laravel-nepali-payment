@@ -5,7 +5,6 @@ namespace JaapTech\NepaliPayment\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use JaapTech\NepaliPayment\Enums\RefundReason;
 use JaapTech\NepaliPayment\Enums\RefundStatus;
 
 class PaymentRefund extends Model
@@ -18,7 +17,7 @@ class PaymentRefund extends Model
 
     protected $casts = [
         'refund_amount' => 'decimal:2',
-        'refund_reason' => RefundReason::class,
+        'refund_reason' => 'string',
         'refund_status' => RefundStatus::class,
         'gateway_response' => 'json',
         'requested_at' => 'datetime',
@@ -30,7 +29,7 @@ class PaymentRefund extends Model
      */
     public function payment(): BelongsTo
     {
-        return $this->belongsTo(Payment::class);
+        return $this->belongsTo(PaymentTransaction::class);
     }
 
     /**

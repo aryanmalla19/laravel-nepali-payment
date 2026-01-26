@@ -22,8 +22,8 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             // Refund Details
-            $table->decimal('refund_amount', 10, 2);
-            $table->enum('refund_reason', ['user_request', 'duplicate', 'error', 'other']);
+            $table->decimal('refund_amount', 10);
+            $table->string('refund_reason')->nullable();
             $table->enum('refund_status', ['pending', 'processing', 'completed', 'failed'])->index();
 
             // Gateway Response Storage

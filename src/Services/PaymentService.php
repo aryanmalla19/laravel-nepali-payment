@@ -8,17 +8,18 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Str;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
-use JaapTech\NepaliPayment\Models\Payment;
+use JaapTech\NepaliPayment\Models\PaymentTransaction;
 
 class PaymentService
 {
     public function __construct(
         protected Repository $config,
-        protected PaymentQueryService $queryService
+        protected PaymentTransactionQueryService $queryService
     ) {}
 
     /**
      * Create a new payment record in the database.
+     * @throws DatabaseException
      */
     public function createPayment(
         string $gateway,
@@ -27,16 +28,14 @@ class PaymentService
         ?string $payableType = null,
         int|string|null $payableId = null,
         array $metadata = []
-    ): Payment {
-        if (! $this->isDatabaseEnabled()) {
-            throw DatabaseException::disabled();
-        }
+    ): PaymentTransaction {
+        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
             // Generate unique reference ID if not provided
-            $referenceId = $paymentData['reference_id'] ?? Str::uuid()->toString();
+            $referenceId = $paymentData['transaction_uuid'] ?? $paymentData['reference_id'] ?? Str::uuid()->toString();
 
-            $payment = Payment::create([
+            return PaymentTransaction::create([
                 'gateway' => $gateway,
                 'status' => PaymentStatus::PENDING,
                 'amount' => $amount,
@@ -49,7 +48,6 @@ class PaymentService
                 'initiated_at' => now(),
             ]);
 
-            return $payment;
         } catch (\Exception $e) {
             throw DatabaseException::createFailed($gateway, $e->getMessage());
         }
@@ -57,15 +55,14 @@ class PaymentService
 
     /**
      * Record payment verification in database.
+     * @throws DatabaseException
      */
     public function recordPaymentVerification(
-        Payment $payment,
-        array $verificationData,
-        bool $isSuccess = true
+        PaymentTransaction $payment,
+        array              $verificationData,
+        bool               $isSuccess = true
     ): void {
-        if (! $this->isDatabaseEnabled()) {
-            return;
-        }
+        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
             $updateData = [
@@ -88,15 +85,14 @@ class PaymentService
 
     /**
      * Mark a payment as completed.
+     * @throws DatabaseException
      */
     public function completePayment(
-        Payment $payment,
-        ?string $gatewayTransactionId = null,
-        array $responseData = []
+        PaymentTransaction $payment,
+        ?string            $gatewayTransactionId = null,
+        array              $responseData = []
     ): void {
-        if (! $this->isDatabaseEnabled()) {
-            return;
-        }
+        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
             $updateData = [
@@ -120,14 +116,13 @@ class PaymentService
 
     /**
      * Mark a payment as failed.
+     * @throws DatabaseException
      */
     public function failPayment(
-        Payment $payment,
-        ?string $reason = null
+        PaymentTransaction $payment,
+        ?string            $reason = null
     ): void {
-        if (! $this->isDatabaseEnabled()) {
-            return;
-        }
+        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
             $payment->markAsFailed($reason);
@@ -138,18 +133,20 @@ class PaymentService
 
     /**
      * Find a payment by reference ID.
+     * @throws DatabaseException
      */
-    public function findByReference(string $referenceId): ?Payment
+    public function findByReference(string $referenceId): ?PaymentTransaction
     {
         return $this->queryService->findByReference($referenceId);
     }
 
     /**
      * Find a payment by gateway transaction ID.
+     * @throws DatabaseException
      */
-    public function findByGatewayId(string $gatewayTransactionId): ?Payment
+    public function findByTransactionId(string $gatewayTransactionId): ?PaymentTransaction
     {
-        return $this->queryService->findByGatewayId($gatewayTransactionId);
+        return $this->queryService->findByTransactionId($gatewayTransactionId);
     }
 
     /**

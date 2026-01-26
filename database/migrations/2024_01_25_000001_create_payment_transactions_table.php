@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payments', function (Blueprint $table) {
+        Schema::create('payment_transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
             // Gateway and Status

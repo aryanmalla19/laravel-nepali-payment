@@ -426,7 +426,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use NepaliPayment;
-use JaapTech\NepaliPayment\Models\Payment;
+use JaapTech\NepaliPayment\Models\PaymentTransaction;
 
 class PaymentController extends Controller
 {
@@ -455,7 +455,7 @@ class PaymentController extends Controller
         return $response->redirect();
     }
 
-    public function verify(Payment $payment)
+    public function verify(PaymentTransaction $payment)
     {
         // Get gateway response
         $verification = NepaliPayment::esewa()->verify([
@@ -484,7 +484,7 @@ class PaymentController extends Controller
         }
     }
 
-    public function failed(Payment $payment)
+    public function failed(PaymentTransaction $payment)
     {
         NepaliPayment::failPayment($payment, 'User cancelled payment');
         

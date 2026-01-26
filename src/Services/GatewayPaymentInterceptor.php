@@ -5,21 +5,19 @@ declare(strict_types=1);
 namespace JaapTech\NepaliPayment\Services;
 
 use Illuminate\Contracts\Config\Repository;
-use Illuminate\Support\Str;
 use JaapTech\NepaliPayment\Events\PaymentFailedEvent;
 use JaapTech\NepaliPayment\Events\PaymentInitiatedEvent;
 use JaapTech\NepaliPayment\Events\PaymentProcessingEvent;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
-use JaapTech\NepaliPayment\Models\Payment;
 
 class GatewayPaymentInterceptor
 {
     private bool $isDatabaseEnabled;
 
     public function __construct(
-        private object $gateway,
-        private PaymentService $paymentService,
-        private string $gatewayName,
+        private readonly object $gateway,
+        private readonly PaymentService $paymentService,
+        private readonly string $gatewayName,
         protected Repository $config
     ) {
         $this->isDatabaseEnabled = (bool) $config->get('nepali-payment.database.enabled', false);
@@ -35,7 +33,6 @@ class GatewayPaymentInterceptor
         // Step 1: Create payment record if database enabled
         if ($this->isDatabaseEnabled) {
             try {
-                $referenceId = $data['transaction_uuid'] ?? $data['reference_id'] ?? Str::uuid()->toString();
 
                 $payment = $this->paymentService->createPayment(
                     gateway: $this->gatewayName,
@@ -93,7 +90,7 @@ class GatewayPaymentInterceptor
         if ($this->isDatabaseEnabled) {
             try {
                 // Try to find payment by gateway transaction ID
-                $payment = $this->paymentService->findByGatewayId(
+                $payment = $this->paymentService->findByTransactionId(
                     $data['transaction_uuid'] ?? $data['transaction_id'] ?? $data['txn_id'] ?? ''
                 );
 

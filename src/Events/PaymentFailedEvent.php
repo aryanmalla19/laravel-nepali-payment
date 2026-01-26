@@ -2,12 +2,12 @@
 
 namespace JaapTech\NepaliPayment\Events;
 
-use JaapTech\NepaliPayment\Models\Payment;
+use JaapTech\NepaliPayment\Models\PaymentTransaction;
 
 class PaymentFailedEvent
 {
     public function __construct(
-        public readonly Payment $payment,
-        public readonly ?string $reason = null
+        public readonly PaymentTransaction $payment,
+        public readonly ?string            $reason = null
     ) {}
 }

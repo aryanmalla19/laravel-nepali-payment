@@ -2,11 +2,11 @@
 
 namespace JaapTech\NepaliPayment\Events;
 
-use JaapTech\NepaliPayment\Models\Payment;
+use JaapTech\NepaliPayment\Models\PaymentTransaction;
 
 class PaymentProcessingEvent
 {
     public function __construct(
-        public readonly Payment $payment
+        public readonly PaymentTransaction $payment
     ) {}
 }

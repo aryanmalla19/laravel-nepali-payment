@@ -7,8 +7,7 @@ namespace JaapTech\NepaliPayment\Services;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\Eloquent\Builder;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
-use JaapTech\NepaliPayment\Enums\RefundReason;
-use JaapTech\NepaliPayment\Models\Payment;
+use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use JaapTech\NepaliPayment\Models\PaymentRefund;
 use Kbk\NepaliPaymentGateway\Epay\ConnectIps;
 use Kbk\NepaliPaymentGateway\Epay\Esewa;
@@ -28,7 +27,7 @@ class PaymentManager
         protected Repository $config,
         protected PaymentService $paymentService,
         protected RefundService $refundService,
-        protected PaymentQueryService $queryService
+        protected PaymentTransactionQueryService $queryService
     ) {}
 
     // ============= Gateway Access with Auto-Logging =============
@@ -92,7 +91,7 @@ class PaymentManager
         ?string $payableType = null,
         ?int $payableId = null,
         array $metadata = []
-    ): Payment {
+    ): PaymentTransaction {
         return $this->paymentService->createPayment(
             $gateway,
             $amount,
@@ -107,9 +106,9 @@ class PaymentManager
      * Record payment verification in database.
      */
     public function recordPaymentVerification(
-        Payment $payment,
-        array $verificationData,
-        bool $isSuccess = true
+        PaymentTransaction $payment,
+        array              $verificationData,
+        bool               $isSuccess = true
     ): void {
         $this->paymentService->recordPaymentVerification(
             $payment,
@@ -122,9 +121,9 @@ class PaymentManager
      * Mark a payment as completed.
      */
     public function completePayment(
-        Payment $payment,
-        ?string $gatewayTransactionId = null,
-        array $responseData = []
+        PaymentTransaction $payment,
+        ?string            $gatewayTransactionId = null,
+        array              $responseData = []
     ): void {
         $this->paymentService->completePayment(
             $payment,
@@ -137,8 +136,8 @@ class PaymentManager
      * Mark a payment as failed.
      */
     public function failPayment(
-        Payment $payment,
-        ?string $reason = null
+        PaymentTransaction $payment,
+        ?string            $reason = null
     ): void {
         $this->paymentService->failPayment($payment, $reason);
     }
@@ -146,7 +145,7 @@ class PaymentManager
     /**
      * Find a payment by reference ID.
      */
-    public function findPaymentByReference(string $referenceId): ?Payment
+    public function findPaymentByReference(string $referenceId): ?PaymentTransaction
     {
         return $this->paymentService->findByReference($referenceId);
     }
@@ -154,7 +153,7 @@ class PaymentManager
     /**
      * Find a payment by gateway transaction ID.
      */
-    public function findPaymentByGatewayId(string $gatewayTransactionId): ?Payment
+    public function findPaymentByGatewayId(string $gatewayTransactionId): ?PaymentTransaction
     {
         return $this->paymentService->findByGatewayId($gatewayTransactionId);
     }
@@ -165,11 +164,11 @@ class PaymentManager
      * Create a refund record for a payment.
      */
     public function createRefund(
-        Payment $payment,
-        float $refundAmount,
-        RefundReason|string $reason = RefundReason::USER_REQUEST,
-        ?string $notes = null,
-        ?int $requestedBy = null
+        PaymentTransaction  $payment,
+        float               $refundAmount,
+        ?string $reason =   null,
+        ?string             $notes = null,
+        ?int                $requestedBy = null
     ): PaymentRefund {
         return $this->refundService->createRefund(
             $payment,

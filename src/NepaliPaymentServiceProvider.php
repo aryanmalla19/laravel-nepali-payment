@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use JaapTech\NepaliPayment\Console\CheckConfig;
 use JaapTech\NepaliPayment\Services\GatewayPaymentInterceptor;
 use JaapTech\NepaliPayment\Services\PaymentManager;
-use JaapTech\NepaliPayment\Services\PaymentQueryService;
+use JaapTech\NepaliPayment\Services\PaymentTransactionQueryService;
 use JaapTech\NepaliPayment\Services\PaymentService;
 use JaapTech\NepaliPayment\Services\RefundService;
 
@@ -20,13 +20,13 @@ class NepaliPaymentServiceProvider extends ServiceProvider
 
         // Register payment services with proper dependency injection
         // PaymentQueryService has no dependencies
-        $this->app->singleton(PaymentQueryService::class);
+        $this->app->singleton(PaymentTransactionQueryService::class);
 
         // PaymentService depends on config and PaymentQueryService
         $this->app->singleton(PaymentService::class, function ($app) {
             return new PaymentService(
                 $app->make('config'),
-                $app->make(PaymentQueryService::class)
+                $app->make(PaymentTransactionQueryService::class)
             );
         });
 
@@ -44,7 +44,7 @@ class NepaliPaymentServiceProvider extends ServiceProvider
                 $app->make('config'),
                 $app->make(PaymentService::class),
                 $app->make(RefundService::class),
-                $app->make(PaymentQueryService::class)
+                $app->make(PaymentTransactionQueryService::class)
             );
         });
 

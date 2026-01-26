@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use JaapTech\NepaliPayment\Facades\NepaliPayment;
-use JaapTech\NepaliPayment\Models\Payment;
+use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use JaapTech\NepaliPayment\Models\PaymentRefund;
 
 if (!function_exists('nepali_payment_enabled')) {
@@ -20,13 +20,13 @@ if (!function_exists('nepali_payment_find')) {
     /**
      * Find a payment by reference ID.
      */
-    function nepali_payment_find(string $referenceId): ?Payment
+    function nepali_payment_find(string $referenceId): ?PaymentTransaction
     {
         if (!nepali_payment_enabled()) {
             return null;
         }
 
-        return Payment::byReference($referenceId)->first();
+        return PaymentTransaction::byReference($referenceId)->first();
     }
 }
 
@@ -34,13 +34,13 @@ if (!function_exists('nepali_payment_find_by_gateway_id')) {
     /**
      * Find a payment by gateway transaction ID.
      */
-    function nepali_payment_find_by_gateway_id(string $gatewayTransactionId): ?Payment
+    function nepali_payment_find_by_gateway_id(string $gatewayTransactionId): ?PaymentTransaction
     {
         if (!nepali_payment_enabled()) {
             return null;
         }
 
-        return Payment::byGatewayTransactionId($gatewayTransactionId)->first();
+        return PaymentTransaction::byGatewayTransactionId($gatewayTransactionId)->first();
     }
 }
 
@@ -55,7 +55,7 @@ if (!function_exists('nepali_payment_create')) {
         ?string $payableType = null,
         ?int|string $payableId = null,
         array $metadata = []
-    ): Payment {
+    ): PaymentTransaction {
         return NepaliPayment::createPayment(
             $gateway,
             $amount,
@@ -72,11 +72,11 @@ if (!function_exists('nepali_payment_refund')) {
      * Create a refund for a payment.
      */
     function nepali_payment_refund(
-        Payment $payment,
-        float $refundAmount,
-        string $reason = 'user_request',
-        ?string $notes = null,
-        ?int|string $requestedBy = null
+        PaymentTransaction $payment,
+        float              $refundAmount,
+        string             $reason = 'user_request',
+        ?string            $notes = null,
+        ?int|string        $requestedBy = null
     ): PaymentRefund {
         return NepaliPayment::createRefund(
             $payment,
@@ -98,7 +98,7 @@ if (!function_exists('nepali_payment_get_by_status')) {
             throw new \RuntimeException('Database integration is not enabled');
         }
 
-        return Payment::byStatus($status);
+        return PaymentTransaction::byStatus($status);
     }
 }
 
@@ -112,6 +112,6 @@ if (!function_exists('nepali_payment_get_by_gateway')) {
             throw new \RuntimeException('Database integration is not enabled');
         }
 
-        return Payment::byGateway($gateway);
+        return PaymentTransaction::byGateway($gateway);
     }
 }

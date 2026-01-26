@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
 
-class Payment extends Model
+class PaymentTransaction extends Model
 {
     use HasUuids;
 

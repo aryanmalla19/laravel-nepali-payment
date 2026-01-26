@@ -49,12 +49,12 @@ if (!function_exists('nepali_payment_create')) {
      * Create a new payment record.
      */
     function nepali_payment_create(
-        string $gateway,
-        float $amount,
-        array $paymentData = [],
-        ?string $payableType = null,
-        ?int|string $payableId = null,
-        array $metadata = []
+        string          $gateway,
+        float           $amount,
+        array           $paymentData = [],
+        ?string         $payableType = null,
+        int|string|null $payableId = null,
+        array           $metadata = []
     ): PaymentTransaction {
         return NepaliPayment::createPayment(
             $gateway,
@@ -76,7 +76,7 @@ if (!function_exists('nepali_payment_refund')) {
         float              $refundAmount,
         string             $reason = 'user_request',
         ?string            $notes = null,
-        ?int|string        $requestedBy = null
+        int|string|null $requestedBy = null
     ): PaymentRefund {
         return NepaliPayment::createRefund(
             $payment,

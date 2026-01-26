@@ -12,7 +12,7 @@ class PaymentTransaction extends Model
 {
     use HasUuids;
 
-    protected $table = 'payments';
+    protected $table = 'payment_transactions';
 
     protected $guarded = [];
 

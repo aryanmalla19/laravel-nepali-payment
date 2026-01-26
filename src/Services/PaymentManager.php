@@ -7,11 +7,13 @@ namespace JaapTech\NepaliPayment\Services;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\Eloquent\Builder;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
+use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use JaapTech\NepaliPayment\Models\PaymentRefund;
 use Kbk\NepaliPaymentGateway\Epay\ConnectIps;
 use Kbk\NepaliPaymentGateway\Epay\Esewa;
 use Kbk\NepaliPaymentGateway\Epay\Khalti;
+use Kbk\NepaliPaymentGateway\Exceptions\InvalidPayloadException;
 
 /**
  * PaymentManager - Orchestrator for payment operations
@@ -34,8 +36,9 @@ class PaymentManager
 
     /**
      * Get eSewa gateway instance with auto-logging interceptor.
+     * @throws InvalidPayloadException
      */
-    public function esewa(): Esewa
+    public function esewa(): GatewayPaymentInterceptor
     {
         $esewa = $this->drivers['esewa'] ??= $this->createEsewa();
 
@@ -44,8 +47,9 @@ class PaymentManager
 
     /**
      * Get Khalti gateway instance with auto-logging interceptor.
+     * @throws InvalidPayloadException
      */
-    public function khalti(): Khalti
+    public function khalti(): GatewayPaymentInterceptor
     {
         $khalti = $this->drivers['khalti'] ??= $this->createKhalti();
 
@@ -54,8 +58,9 @@ class PaymentManager
 
     /**
      * Get ConnectIps gateway instance with auto-logging interceptor.
+     * @throws InvalidPayloadException
      */
-    public function connectips(): ConnectIps
+    public function connectips(): GatewayPaymentInterceptor
     {
         $connectips = $this->drivers['connectips'] ??= $this->createConnectIps();
 
@@ -104,6 +109,7 @@ class PaymentManager
 
     /**
      * Record payment verification in database.
+     * @throws DatabaseException
      */
     public function recordPaymentVerification(
         PaymentTransaction $payment,
@@ -119,6 +125,7 @@ class PaymentManager
 
     /**
      * Mark a payment as completed.
+     * @throws DatabaseException
      */
     public function completePayment(
         PaymentTransaction $payment,
@@ -134,6 +141,7 @@ class PaymentManager
 
     /**
      * Mark a payment as failed.
+     * @throws DatabaseException
      */
     public function failPayment(
         PaymentTransaction $payment,
@@ -144,6 +152,7 @@ class PaymentManager
 
     /**
      * Find a payment by reference ID.
+     * @throws DatabaseException
      */
     public function findPaymentByReference(string $referenceId): ?PaymentTransaction
     {
@@ -152,10 +161,11 @@ class PaymentManager
 
     /**
      * Find a payment by gateway transaction ID.
+     * @throws DatabaseException
      */
-    public function findPaymentByGatewayId(string $gatewayTransactionId): ?PaymentTransaction
+    public function findPaymentByTransactionId(string $gatewayTransactionId): ?PaymentTransaction
     {
-        return $this->paymentService->findByGatewayId($gatewayTransactionId);
+        return $this->paymentService->findByTransactionId($gatewayTransactionId);
     }
 
     // ============= Delegated Refund Operations =============
@@ -181,6 +191,7 @@ class PaymentManager
 
     /**
      * Process a refund with a gateway.
+     * @throws DatabaseException
      */
     public function processRefund(
         PaymentRefund $refund,
@@ -194,6 +205,7 @@ class PaymentManager
 
     /**
      * Get all payments by status.
+     * @throws DatabaseException
      */
     public function getPaymentsByStatus(PaymentStatus|string $status): Builder
     {
@@ -202,6 +214,7 @@ class PaymentManager
 
     /**
      * Get all payments by gateway.
+     * @throws DatabaseException
      */
     public function getPaymentsByGateway(string $gateway): Builder
     {
@@ -210,6 +223,7 @@ class PaymentManager
 
     /**
      * Get all payments for a specific payable model.
+     * @throws DatabaseException
      */
     public function getPaymentsForPayable(string $payableType, int|string $payableId): Builder
     {
@@ -220,6 +234,7 @@ class PaymentManager
 
     /**
      * Create eSewa gateway instance.
+     * @throws InvalidPayloadException
      */
     protected function createEsewa(): Esewa
     {
@@ -234,6 +249,7 @@ class PaymentManager
 
     /**
      * Create Khalti gateway instance.
+     * @throws InvalidPayloadException
      */
     protected function createKhalti(): Khalti
     {
@@ -248,6 +264,7 @@ class PaymentManager
 
     /**
      * Create ConnectIps gateway instance.
+     * @throws InvalidPayloadException
      */
     protected function createConnectIps(): ConnectIps
     {

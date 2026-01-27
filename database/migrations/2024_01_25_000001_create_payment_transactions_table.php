@@ -15,8 +15,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             // Gateway and Status
-            $table->enum('gateway', ['esewa', 'khalti', 'connectips']);
-            $table->enum('status', ['pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled'])->index();
+            $table->string('gateway')->index();
+            $table->string('status')->index();
 
             // Polymorphic relation for payable (User, Order, Invoice, etc)
             $table->nullableMorphs('payable', indexName: 'payments_payable_index');

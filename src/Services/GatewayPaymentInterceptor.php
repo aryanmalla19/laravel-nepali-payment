@@ -34,7 +34,6 @@ class GatewayPaymentInterceptor
                 metadata: $data
             );
         } catch (\Exception $e) {
-            // Log error but don't stop the process
             \Log::error("Failed to create payment record: {$e->getMessage()}", [
                 'gateway' => $this->gatewayName,
                 'data' => $data,
@@ -51,12 +50,11 @@ class GatewayPaymentInterceptor
 
         // Step 3: Store transaction ID and full response
         try {
-            // Extract transaction ID from response if available
             $transactionId = $this->extractTransactionIdFromArray($response->toArray());
 
             $payment->update([
                 'gateway_transaction_id' => $transactionId,
-                'gateway_response' => $this->responseToArray($response),
+                'gateway_response' => $response->toArray(),
             ]);
         } catch (\Exception $e) {
             \Log::error("Failed to update payment record: {$e->getMessage()}", [
@@ -79,18 +77,14 @@ class GatewayPaymentInterceptor
         // Step 2: Update payment record
         try {
             // Try to find payment by gateway transaction ID
-            $payment = $this->paymentService->findByTransactionId(
-                $data['transaction_uuid'] ?? $data['transaction_id'] ?? $data['txn_id'] ?? ''
-            );
+            $transactionId = $data['transaction_uuid'] ?? $data['transaction_id'] ?? $data['txn_id'] ?? '';
+
+            $payment = $this->paymentService->findByTransactionId($transactionId);
 
             if ($payment) {
                 $isSuccess = $this->isResponseSuccess($response);
 
-                $this->paymentService->recordPaymentVerification(
-                    $payment,
-                    $this->responseToArray($response),
-                    $isSuccess
-                );
+                $this->paymentService->recordPaymentVerification($payment, $response->toArray(), $isSuccess);
 
                 // Dispatch appropriate event based on result
                 if ($isSuccess) {
@@ -115,38 +109,13 @@ class GatewayPaymentInterceptor
     private function extractTransactionIdFromArray(array $response): ?string
     {
         // Try property access
-        if (isset($response['transaction_id'])) {
-            return $response['transaction_id'];
-        }
+        if (isset($response['transaction_id'])) return $response['transaction_id'];
 
-        if (isset($response['transaction_uuid'])) {
-            return $response['transaction_uuid'];
-        }
+        if (isset($response['transaction_uuid'])) return $response['transaction_uuid'];
 
-        if (isset($response['txn_id'])) {
-            return $response['txn_id'];
-        }
+        if (isset($response['txn_id'])) return $response['txn_id'];
 
         return null;
-    }
-
-    /**
-     * Convert gateway response to array format for storage.
-     */
-    private function responseToArray(object $response): array
-    {
-        // If response has toArray method, use it
-        if (method_exists($response, 'toArray')) {
-            return $response->toArray();
-        }
-
-        // If response has toJson method, decode it
-        if (method_exists($response, 'toJson')) {
-            return json_decode($response->toJson(), true) ?? [];
-        }
-
-        // Fallback: convert object to array
-        return json_decode(json_encode($response), true) ?? [];
     }
 
     /**

@@ -20,7 +20,6 @@ class PaymentTransaction extends Model
         'amount' => 'decimal:2',
         'status' => PaymentStatus::class,
         'gateway_response' => 'json',
-        'metadata' => 'json',
         'initiated_at' => 'datetime',
         'verified_at' => 'datetime',
         'completed_at' => 'datetime',
@@ -95,11 +94,11 @@ class PaymentTransaction extends Model
     }
 
     /**
-     * Scope: Filter by gateway transaction ID.
+     * Scope: Filter by transaction ID.
      */
-    public function scopeByGatewayTransactionId($query, string $gatewayTransactionId)
+    public function scopeByTransactionId($query, string $transactionId)
     {
-        return $query->where('gateway_transaction_id', $gatewayTransactionId);
+        return $query->where('transaction_id', $transactionId);
     }
 
     /**
@@ -132,7 +131,7 @@ class PaymentTransaction extends Model
      */
     public function isPending(): bool
     {
-        return $this->status->isPending();
+        return $this->status === PaymentStatus::PENDING;
     }
 
     /**
@@ -168,18 +167,12 @@ class PaymentTransaction extends Model
     /**
      * Mark payment as failed.
      */
-    public function markAsFailed(?string $reason = null): void
+    public function markAsFailed(): void
     {
-        $data = [
+        $this->update([
             'status' => PaymentStatus::FAILED,
             'failed_at' => now(),
-        ];
-
-        if ($reason) {
-            $data['metadata'] = array_merge($this->metadata ?? [], ['failure_reason' => $reason]);
-        }
-
-        $this->update($data);
+        ]);
     }
 
     /**

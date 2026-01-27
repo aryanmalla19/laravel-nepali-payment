@@ -25,7 +25,6 @@ class RefundService
         PaymentTransaction  $payment,
         float               $refundAmount,
         ?string             $reason = null,
-        ?string             $notes = null,
         int|string|null     $requestedBy = null
     ): PaymentRefund {
         if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
@@ -38,10 +37,7 @@ class RefundService
 
             // Validate refund amount
             if ($refundAmount > $payment->getRemainingRefundableAmount()) {
-                throw PaymentException::insufficientRefundableAmount(
-                    $refundAmount,
-                    $payment->getRemainingRefundableAmount()
-                );
+                throw PaymentException::insufficientRefundableAmount($refundAmount,$payment->getRemainingRefundableAmount());
             }
 
             return PaymentRefund::create([
@@ -49,7 +45,6 @@ class RefundService
                 'refund_amount' => $refundAmount,
                 'refund_reason' => $reason,
                 'refund_status' => 'pending',
-                'notes' => $notes,
                 'requested_by' => $requestedBy,
                 'requested_at' => now(),
             ]);

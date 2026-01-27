@@ -18,23 +18,19 @@ return new class extends Migration
             $table->string('gateway')->index();
             $table->string('status')->index();
 
-            // Polymorphic relation for payable (User, Order, Invoice, etc)
+            // Polymorphic relation for payable (User, Order, Invoice, etc.)
             $table->nullableMorphs('payable', indexName: 'payments_payable_index');
 
             // Payment Details
-            $table->decimal('amount', 10, 2);
+            $table->decimal('amount', 10);
             $table->string('currency')->default('NPR');
 
             // Transaction IDs
             $table->string('reference_id')->unique();
-            $table->string('gateway_transaction_id')->nullable()->unique();
+            $table->string('transaction_id')->nullable()->unique();
 
             // Gateway Response Storage
             $table->json('gateway_response')->nullable();
-
-            // Metadata
-            $table->text('description')->nullable();
-            $table->json('metadata')->nullable();
 
             // Lifecycle Timestamps
             $table->timestamp('initiated_at')->useCurrent();

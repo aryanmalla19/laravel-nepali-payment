@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JaapTech\NepaliPayment\Services;
 
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
@@ -25,9 +26,7 @@ class PaymentService
         string $gateway,
         float $amount,
         array $paymentData = [],
-        ?string $payableType = null,
-        int|string|null $payableId = null,
-        array $metadata = []
+        ?Model $model = null,
     ): PaymentTransaction {
         if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
@@ -41,13 +40,11 @@ class PaymentService
                 'amount' => $amount,
                 'currency' => $paymentData['currency'] ?? 'NPR',
                 'reference_id' => $referenceId,
-                'payable_type' => $payableType,
-                'payable_id' => $payableId,
+                'payable_type' => $model?->getTable() ?? null,
+                'payable_id' => $model?->getKey() ?? null,
                 'description' => $paymentData['description'] ?? null,
-                'metadata' => array_merge($metadata, $paymentData),
                 'initiated_at' => now(),
             ]);
-
         } catch (\Exception $e) {
             throw DatabaseException::createFailed($gateway, $e->getMessage());
         }
@@ -60,14 +57,12 @@ class PaymentService
     public function recordPaymentVerification(
         PaymentTransaction $payment,
         array              $verificationData,
-        bool               $isSuccess = true
+        bool               $isSuccess = true,
     ): void {
         if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
-            $updateData = [
-                'gateway_response' => $verificationData,
-            ];
+            $updateData = ['gateway_response' => $verificationData];
 
             if ($isSuccess) {
                 $updateData['status'] = PaymentStatus::PROCESSING;
@@ -87,28 +82,15 @@ class PaymentService
      * Mark a payment as completed.
      * @throws DatabaseException
      */
-    public function completePayment(
-        PaymentTransaction $payment,
-        ?string            $gatewayTransactionId = null,
-        array              $responseData = []
-    ): void {
+    public function completePayment(PaymentTransaction $payment): void
+    {
         if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
-            $updateData = [
+            $payment->update([
                 'status' => PaymentStatus::COMPLETED,
                 'completed_at' => now(),
-            ];
-
-            if ($gatewayTransactionId) {
-                $updateData['gateway_transaction_id'] = $gatewayTransactionId;
-            }
-
-            if (! empty($responseData)) {
-                $updateData['gateway_response'] = $responseData;
-            }
-
-            $payment->update($updateData);
+            ]);
         } catch (\Exception $e) {
             throw DatabaseException::updateFailed($payment->id, $e->getMessage());
         }
@@ -118,14 +100,12 @@ class PaymentService
      * Mark a payment as failed.
      * @throws DatabaseException
      */
-    public function failPayment(
-        PaymentTransaction $payment,
-        ?string            $reason = null
-    ): void {
+    public function failPayment(PaymentTransaction $payment): void
+    {
         if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
-            $payment->markAsFailed($reason);
+            $payment->markAsFailed();
         } catch (\Exception $e) {
             throw DatabaseException::updateFailed($payment->id, $e->getMessage());
         }

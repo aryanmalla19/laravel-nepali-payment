@@ -25,8 +25,6 @@ class GatewayPaymentInterceptor
      */
     public function payment(array $data)
     {
-        $payment = null;
-
         // Step 1: Create payment record
         try {
             $payment = $this->paymentService->createPayment(
@@ -132,6 +130,10 @@ class GatewayPaymentInterceptor
         // Try property access
         if (isset($response->transaction_id)) {
             return $response->transaction_id;
+        }
+
+        if (isset($response->transaction_uuid)) {
+            return $response->transaction_uuid;
         }
 
         if (isset($response->txn_id)) {

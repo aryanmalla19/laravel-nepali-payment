@@ -52,7 +52,7 @@ class GatewayPaymentInterceptor
         // Step 3: Store transaction ID and full response
         try {
             // Extract transaction ID from response if available
-            $transactionId = $this->extractTransactionId($response);
+            $transactionId = $this->extractTransactionIdFromArray($response->toArray());
 
             $payment->update([
                 'gateway_transaction_id' => $transactionId,
@@ -112,32 +112,19 @@ class GatewayPaymentInterceptor
     /**
      * Extract transaction ID from gateway response.
      */
-    private function extractTransactionId(object $response): ?string
+    private function extractTransactionIdFromArray(array $response): ?string
     {
-        // Try common method names used by gateways
-        if (method_exists($response, 'getTransactionId')) {
-            return $response->getTransactionId();
-        }
-
-        if (method_exists($response, 'transactionId')) {
-            return $response->transactionId();
-        }
-
-        if (method_exists($response, 'getTxnId')) {
-            return $response->getTxnId();
-        }
-
         // Try property access
-        if (isset($response->transaction_id)) {
-            return $response->transaction_id;
+        if (isset($response['transaction_id'])) {
+            return $response['transaction_id'];
         }
 
-        if (isset($response->transaction_uuid)) {
-            return $response->transaction_uuid;
+        if (isset($response['transaction_uuid'])) {
+            return $response['transaction_uuid'];
         }
 
-        if (isset($response->txn_id)) {
-            return $response->txn_id;
+        if (isset($response['txn_id'])) {
+            return $response['txn_id'];
         }
 
         return null;

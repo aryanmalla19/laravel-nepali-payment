@@ -5,7 +5,7 @@ namespace JaapTech\NepaliPayment\Enums;
 enum PaymentStatus: string
 {
     case PENDING = 'pending';
-    case PROCESSING = 'processing';
+    case PROCESSING = 'processing (paid)';
     case COMPLETED = 'completed';
     case FAILED = 'failed';
     case REFUNDED = 'refunded';
@@ -40,7 +40,7 @@ enum PaymentStatus: string
     {
         return match ($this) {
             self::PENDING => 'Pending',
-            self::PROCESSING => 'Processing',
+            self::PROCESSING => 'Processing (paid)',
             self::COMPLETED => 'Completed',
             self::FAILED => 'Failed',
             self::REFUNDED => 'Refunded',

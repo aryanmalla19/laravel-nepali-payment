@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled'])->index();
 
             // Polymorphic relation for payable (User, Order, Invoice, etc)
-            $table->morphs('payable', indexName: 'payments_payable_index');
+            $table->nullableMorphs('payable', indexName: 'payments_payable_index');
 
             // Payment Details
             $table->decimal('amount', 10, 2);

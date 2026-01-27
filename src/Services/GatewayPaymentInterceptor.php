@@ -12,16 +12,12 @@ use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 
 class GatewayPaymentInterceptor
 {
-    private bool $isDatabaseEnabled;
-
     public function __construct(
         private readonly object $gateway,
         private readonly PaymentService $paymentService,
         private readonly string $gatewayName,
         protected Repository $config
-    ) {
-        $this->isDatabaseEnabled = (bool) $config->get('nepali-payment.database.enabled', false);
-    }
+    ) {}
 
     /**
      * Intercept payment method call to auto-log to database.
@@ -31,48 +27,43 @@ class GatewayPaymentInterceptor
     {
         $payment = null;
 
-        // Step 1: Create payment record if database enabled
-        if ($this->isDatabaseEnabled) {
-            try {
+        // Step 1: Create payment record
+        try {
+            $payment = $this->paymentService->createPayment(
+                gateway: $this->gatewayName,
+                amount: $data['amount'] ?? 0,
+                paymentData: $data,
+                metadata: $data
+            );
+        } catch (\Exception $e) {
+            // Log error but don't stop the process
+            \Log::error("Failed to create payment record: {$e->getMessage()}", [
+                'gateway' => $this->gatewayName,
+                'data' => $data,
+            ]);
 
-                $payment = $this->paymentService->createPayment(
-                    gateway: $this->gatewayName,
-                    amount: $data['amount'] ?? 0,
-                    paymentData: $data,
-                    metadata: $data
-                );
-            } catch (\Exception $e) {
-                // Log error but don't stop the process
-                \Log::error("Failed to create payment record: {$e->getMessage()}", [
-                    'gateway' => $this->gatewayName,
-                    'data' => $data,
-                ]);
-
-                throw DatabaseException::createFailed($this->gatewayName, $e->getMessage());
-            }
-
-            // Dispatch payment initiated event
-            event(new PaymentInitiatedEvent($payment));
+            throw DatabaseException::createFailed($this->gatewayName, $e->getMessage());
         }
+
+        // Dispatch payment initiated event
+        event(new PaymentInitiatedEvent($payment));
 
         // Step 2: Call actual gateway payment method
         $response = $this->gateway->payment($data);
 
-        // Step 3: Store transaction ID and full response if payment was created
-        if ($this->isDatabaseEnabled && $payment) {
-            try {
-                // Extract transaction ID from response if available
-                $transactionId = $this->extractTransactionId($response);
+        // Step 3: Store transaction ID and full response
+        try {
+            // Extract transaction ID from response if available
+            $transactionId = $this->extractTransactionId($response);
 
-                $payment->update([
-                    'gateway_transaction_id' => $transactionId,
-                    'gateway_response' => $this->responseToArray($response),
-                ]);
-            } catch (\Exception $e) {
-                \Log::error("Failed to update payment record: {$e->getMessage()}", [
-                    'payment_id' => $payment->id,
-                ]);
-            }
+            $payment->update([
+                'gateway_transaction_id' => $transactionId,
+                'gateway_response' => $this->responseToArray($response),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Failed to update payment record: {$e->getMessage()}", [
+                'payment_id' => $payment->id,
+            ]);
         }
 
         // Step 4: Return response to user
@@ -87,35 +78,33 @@ class GatewayPaymentInterceptor
         // Step 1: Call actual gateway verify method
         $response = $this->gateway->verify($data);
 
-        // Step 2: Update payment record if database enabled
-        if ($this->isDatabaseEnabled) {
-            try {
-                // Try to find payment by gateway transaction ID
-                $payment = $this->paymentService->findByTransactionId(
-                    $data['transaction_uuid'] ?? $data['transaction_id'] ?? $data['txn_id'] ?? ''
+        // Step 2: Update payment record
+        try {
+            // Try to find payment by gateway transaction ID
+            $payment = $this->paymentService->findByTransactionId(
+                $data['transaction_uuid'] ?? $data['transaction_id'] ?? $data['txn_id'] ?? ''
+            );
+
+            if ($payment) {
+                $isSuccess = $this->isResponseSuccess($response);
+
+                $this->paymentService->recordPaymentVerification(
+                    $payment,
+                    $this->responseToArray($response),
+                    $isSuccess
                 );
 
-                if ($payment) {
-                    $isSuccess = $this->isResponseSuccess($response);
-
-                    $this->paymentService->recordPaymentVerification(
-                        $payment,
-                        $this->responseToArray($response),
-                        $isSuccess
-                    );
-
-                    // Dispatch appropriate event based on result
-                    if ($isSuccess) {
-                        event(new PaymentProcessingEvent($payment));
-                    } else {
-                        event(new PaymentFailedEvent($payment, 'Verification failed'));
-                    }
+                // Dispatch appropriate event based on result
+                if ($isSuccess) {
+                    event(new PaymentProcessingEvent($payment));
+                } else {
+                    event(new PaymentFailedEvent($payment, 'Verification failed'));
                 }
-            } catch (\Exception $e) {
-                \Log::error("Failed to record payment verification: {$e->getMessage()}", [
-                    'data' => $data,
-                ]);
             }
+        } catch (\Exception $e) {
+            \Log::error("Failed to record payment verification: {$e->getMessage()}", [
+                'data' => $data,
+            ]);
         }
 
         // Step 3: Return response to user

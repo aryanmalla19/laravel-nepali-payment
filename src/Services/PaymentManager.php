@@ -6,14 +6,12 @@ namespace JaapTech\NepaliPayment\Services;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\Eloquent\Builder;
+use JaapTech\NepaliPayment\Enums\NepaliPaymentGateway;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use JaapTech\NepaliPayment\Models\PaymentRefund;
-use Kbk\NepaliPaymentGateway\Epay\ConnectIps;
-use Kbk\NepaliPaymentGateway\Epay\Esewa;
-use Kbk\NepaliPaymentGateway\Epay\Khalti;
-use Kbk\NepaliPaymentGateway\Exceptions\InvalidPayloadException;
+use RuntimeException;
 
 /**
  * PaymentManager - Orchestrator for payment operations
@@ -23,82 +21,97 @@ use Kbk\NepaliPaymentGateway\Exceptions\InvalidPayloadException;
  */
 class PaymentManager
 {
-    protected array $drivers = [];
+    private bool $isDatabaseEnabled;
 
     public function __construct(
         protected Repository $config,
         protected PaymentService $paymentService,
         protected RefundService $refundService,
-        protected PaymentTransactionQueryService $queryService
-    ) {}
+        protected PaymentTransactionQueryService $queryService,
+        protected GatewayFactory $gatewayFactory
+    ) {
+        // Cache the database enabled flag once during construction
+        $this->isDatabaseEnabled = (bool) $config->get('nepali-payment.database.enabled', false);
+    }
 
     // ============= Gateway Access with Auto-Logging =============
 
     /**
-     * Get eSewa gateway instance with auto-logging interceptor.
-     * @throws InvalidPayloadException
+     * Get a gateway instance with auto-logging interceptor if database is enabled.
+     *
+     * @param string|NepaliPaymentGateway $gateway Gateway name or enum
+     * @return object Gateway instance or intercepted gateway
+     * @throws RuntimeException If gateway is not supported
      */
-    public function esewa(): GatewayPaymentInterceptor
+    public function gateway(string|NepaliPaymentGateway $gateway): object
     {
-        $esewa = $this->drivers['esewa'] ??= $this->createEsewa();
+        // Validate and get gateway instance from factory
+        $gatewayInstance = $this->gatewayFactory->make($gateway);
 
-        return $this->wrapWithInterceptor($esewa, 'esewa');
+        // Wrap with interceptor if database is enabled (only once during construction)
+        if ($this->isDatabaseEnabled) {
+            $gatewayName = $gateway instanceof NepaliPaymentGateway
+                ? $gateway->value
+                : $gateway;
+
+            return new GatewayPaymentInterceptor(
+                $gatewayInstance,
+                $this->paymentService,
+                $gatewayName,
+                $this->config
+            );
+        }
+
+        return $gatewayInstance;
+    }
+
+    /**
+     * Get eSewa gateway instance with auto-logging interceptor.
+     */
+    public function esewa(): object
+    {
+        return $this->gateway(NepaliPaymentGateway::ESEWA);
     }
 
     /**
      * Get Khalti gateway instance with auto-logging interceptor.
-     * @throws InvalidPayloadException
      */
-    public function khalti(): GatewayPaymentInterceptor
+    public function khalti(): object
     {
-        $khalti = $this->drivers['khalti'] ??= $this->createKhalti();
-
-        return $this->wrapWithInterceptor($khalti, 'khalti');
+        return $this->gateway(NepaliPaymentGateway::KHALTI);
     }
 
     /**
      * Get ConnectIps gateway instance with auto-logging interceptor.
-     * @throws InvalidPayloadException
      */
-    public function connectips(): GatewayPaymentInterceptor
+    public function connectips(): object
     {
-        $connectips = $this->drivers['connectips'] ??= $this->createConnectIps();
-
-        return $this->wrapWithInterceptor($connectips, 'connectips');
-    }
-
-    /**
-     * Wrap gateway with interceptor if database is enabled.
-     */
-    private function wrapWithInterceptor(object $gateway, string $gatewayName): object
-    {
-        if (! $this->isDatabaseEnabled()) {
-            return $gateway;
-        }
-
-        return new GatewayPaymentInterceptor(
-            $gateway,
-            $this->paymentService,
-            $gatewayName,
-            $this->config
-        );
+        return $this->gateway(NepaliPaymentGateway::CONNECTIPS);
     }
 
     // ============= Delegated Payment Operations =============
 
     /**
      * Create a new payment record in the database.
+     *
+     * @throws RuntimeException|DatabaseException If gateway is not supported
      */
     public function createPayment(
-        string $gateway,
+        string|NepaliPaymentGateway $gateway,
         float $amount,
         array $paymentData = [],
         ?string $payableType = null,
         ?int $payableId = null,
         array $metadata = []
     ): PaymentTransaction {
+        // Validate gateway
+        $gatewayName = $gateway instanceof NepaliPaymentGateway
+            ? $gateway->value
+            : $gateway;
+        $this->validateGateway($gatewayName);
+
         return $this->paymentService->createPayment(
-            $gateway,
+            $gatewayName,
             $amount,
             $paymentData,
             $payableType,
@@ -214,11 +227,18 @@ class PaymentManager
 
     /**
      * Get all payments by gateway.
-     * @throws DatabaseException
+     *
+     * @throws RuntimeException If gateway is not supported
      */
-    public function getPaymentsByGateway(string $gateway): Builder
+    public function getPaymentsByGateway(string|NepaliPaymentGateway $gateway): Builder
     {
-        return $this->queryService->getByGateway($gateway);
+        // Validate gateway
+        $gatewayName = $gateway instanceof NepaliPaymentGateway
+            ? $gateway->value
+            : $gateway;
+        $this->validateGateway($gatewayName);
+
+        return $this->queryService->getByGateway($gatewayName);
     }
 
     /**
@@ -233,78 +253,21 @@ class PaymentManager
     // ============= Private Helpers =============
 
     /**
-     * Create eSewa gateway instance.
-     * @throws InvalidPayloadException
+     * Validate that a gateway is supported.
+     *
+     * @throws RuntimeException If gateway is not supported
      */
-    protected function createEsewa(): Esewa
+    private function validateGateway(string $gatewayName): void
     {
-        $config = $this->config->get('nepali-payment.esewa');
-        $this->ensureConfig('esewa', ['product_code', 'secret_key']);
-
-        return new Esewa(
-            $config['product_code'],
-            $config['secret_key']
+        $supportedGateways = array_map(
+            fn (NepaliPaymentGateway $gateway) => $gateway->value,
+            NepaliPaymentGateway::cases()
         );
-    }
 
-    /**
-     * Create Khalti gateway instance.
-     * @throws InvalidPayloadException
-     */
-    protected function createKhalti(): Khalti
-    {
-        $config = $this->config->get('nepali-payment.khalti');
-        $this->ensureConfig('khalti', ['secret_key']);
-
-        return new Khalti(
-            $config['secret_key'],
-            $config['environment']
-        );
-    }
-
-    /**
-     * Create ConnectIps gateway instance.
-     * @throws InvalidPayloadException
-     */
-    protected function createConnectIps(): ConnectIps
-    {
-        $config = $this->config->get('nepali-payment.connectips');
-
-        $this->ensureConfig('connectips', [
-            'merchant_id',
-            'app_id',
-            'app_name',
-            'password',
-            'private_key_path',
-        ]);
-
-        return new ConnectIps([
-            'base_url' => $config['environment'] === 'test'
-                ? 'https://uat.connectips.com'
-                : 'https://connectips.com',
-            ...$config,
-        ]);
-    }
-
-    /**
-     * Ensure required configuration keys are set.
-     */
-    protected function ensureConfig(string $gateway, array $keys): void
-    {
-        foreach ($keys as $key) {
-            if (empty($this->config->get("nepali-payment.{$gateway}.{$key}"))) {
-                throw new \RuntimeException(
-                    "Missing config for nepali-payment [{$gateway}.{$key}]"
-                );
-            }
+        if (!in_array($gatewayName, $supportedGateways)) {
+            throw new RuntimeException(
+                "Unsupported gateway: {$gatewayName}. Supported gateways: " . implode(', ', $supportedGateways)
+            );
         }
-    }
-
-    /**
-     * Check if database integration is enabled.
-     */
-    protected function isDatabaseEnabled(): bool
-    {
-        return (bool) $this->config->get('nepali-payment.database.enabled', false);
     }
 }

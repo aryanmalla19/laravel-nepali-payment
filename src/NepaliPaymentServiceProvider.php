@@ -6,7 +6,7 @@ namespace JaapTech\NepaliPayment;
 
 use Illuminate\Support\ServiceProvider;
 use JaapTech\NepaliPayment\Console\CheckConfig;
-use JaapTech\NepaliPayment\Services\GatewayPaymentInterceptor;
+use JaapTech\NepaliPayment\Services\GatewayFactory;
 use JaapTech\NepaliPayment\Services\PaymentManager;
 use JaapTech\NepaliPayment\Services\PaymentTransactionQueryService;
 use JaapTech\NepaliPayment\Services\PaymentService;
@@ -17,6 +17,13 @@ class NepaliPaymentServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/nepali-payment.php', 'nepali-payment');
+
+        // Register GatewayFactory with config dependency
+        $this->app->singleton(GatewayFactory::class, function ($app) {
+            return new GatewayFactory(
+                $app->make('config')
+            );
+        });
 
         // Register payment services with proper dependency injection
         // PaymentQueryService has no dependencies
@@ -38,18 +45,16 @@ class NepaliPaymentServiceProvider extends ServiceProvider
             );
         });
 
-        // PaymentManager depends on config and all 3 services
+        // PaymentManager depends on config, all 3 services, and GatewayFactory
         $this->app->singleton(PaymentManager::class, function ($app) {
             return new PaymentManager(
                 $app->make('config'),
                 $app->make(PaymentService::class),
                 $app->make(RefundService::class),
-                $app->make(PaymentTransactionQueryService::class)
+                $app->make(PaymentTransactionQueryService::class),
+                $app->make(GatewayFactory::class)
             );
         });
-
-        // GatewayPaymentInterceptor is used by PaymentManager, so we don't need to register it separately
-        // It's instantiated on-demand by PaymentManager::wrapWithInterceptor()
     }
 
     public function boot(): void

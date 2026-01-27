@@ -52,7 +52,7 @@ class GatewayPaymentInterceptor
             $transactionId = $this->extractTransactionIdFromArray($response->toArray());
 
             $payment->update([
-                'gateway_transaction_id' => $transactionId,
+                'transaction_id' => $transactionId,
                 'gateway_response' => $response->toArray(),
             ]);
         } catch (\Exception $e) {

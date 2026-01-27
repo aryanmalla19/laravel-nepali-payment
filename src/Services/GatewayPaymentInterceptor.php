@@ -114,6 +114,8 @@ class GatewayPaymentInterceptor
 
         if (isset($response['txn_id'])) return $response['txn_id'];
 
+        if (isset($response['pidx'])) return $response['pidx'];
+
         return null;
     }
 

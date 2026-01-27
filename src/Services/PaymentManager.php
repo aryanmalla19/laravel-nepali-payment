@@ -119,18 +119,18 @@ class PaymentManager
      * Mark a payment as completed.
      * @throws DatabaseException
      */
-    public function completePayment(PaymentTransaction $payment, ?string $gatewayTransactionId = null, array $responseData = []): void
+    public function completePayment(PaymentTransaction $payment): void
     {
-        $this->paymentService->completePayment($payment, $gatewayTransactionId, $responseData);
+        $this->paymentService->completePayment($payment);
     }
 
     /**
      * Mark a payment as failed.
      * @throws DatabaseException
      */
-    public function failPayment(PaymentTransaction $payment, ?string $reason = null): void
+    public function failPayment(PaymentTransaction $payment): void
     {
-        $this->paymentService->failPayment($payment, $reason);
+        $this->paymentService->failPayment($payment);
     }
 
     /**
@@ -161,14 +161,12 @@ class PaymentManager
         float               $refundAmount,
         ?string $reason =   null,
         ?string             $notes = null,
-        ?int                $requestedBy = null
     ): PaymentRefund {
         return $this->refundService->createRefund(
             $payment,
             $refundAmount,
             $reason,
             $notes,
-            $requestedBy
         );
     }
 

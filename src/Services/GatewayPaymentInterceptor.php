@@ -30,8 +30,7 @@ class GatewayPaymentInterceptor
             $payment = $this->paymentService->createPayment(
                 gateway: $this->gatewayName,
                 amount: $data['amount'] ?? 0,
-                paymentData: $data,
-                metadata: $data
+                paymentData: $data
             );
         } catch (\Exception $e) {
             \Log::error("Failed to create payment record: {$e->getMessage()}", [

@@ -76,7 +76,7 @@ class GatewayPaymentInterceptor
         // Step 2: Update payment record
         try {
             // Try to find payment by gateway transaction ID
-            $transactionId = $data['transaction_uuid'] ?? $data['transaction_id'] ?? $data['txn_id'] ?? '';
+            $transactionId = $data['pidx'] ?? $data['transaction_uuid'] ?? $data['transaction_id'] ?? $data['txn_id'] ?? '';
 
             $payment = $this->paymentService->findByTransactionId($transactionId);
 

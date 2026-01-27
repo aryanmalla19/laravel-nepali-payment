@@ -42,7 +42,6 @@ class PaymentService
                 'reference_id' => $referenceId,
                 'payable_type' => $model?->getTable() ?? null,
                 'payable_id' => $model?->getKey() ?? null,
-                'description' => $paymentData['description'] ?? null,
                 'initiated_at' => now(),
             ]);
         } catch (\Exception $e) {

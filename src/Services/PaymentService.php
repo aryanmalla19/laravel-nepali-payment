@@ -32,7 +32,8 @@ class PaymentService
 
         try {
             // Generate unique reference ID if not provided
-            $referenceId = $paymentData['reference_id'] ?? $paymentData['purchase_order_id'] ?? Str::uuid()->toString();
+            $referenceId = $paymentData['transaction_uuid'] ?? $paymentData['reference_id'] ?? $paymentData['purchase_order_id'] ?? Str::uuid()->toString();
+            $transactionId = $paymentData['transaction_uuid'] ?? $paymentData['transaction_id'] ?? $paymentData['pidx'] ?? $paymentData['txn_id'] ?? Str::uuid()->toString();
 
             return PaymentTransaction::create([
                 'gateway' => $gateway,
@@ -40,6 +41,8 @@ class PaymentService
                 'amount' => $amount,
                 'currency' => $paymentData['currency'] ?? 'NPR',
                 'reference_id' => $referenceId,
+                'transaction_id' => $transactionId,
+                'gateway_response' => $paymentData,
                 'payable_type' => $model?->getTable() ?? null,
                 'payable_id' => $model?->getKey() ?? null,
                 'initiated_at' => now(),

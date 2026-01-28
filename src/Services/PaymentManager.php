@@ -159,14 +159,14 @@ class PaymentManager
     public function createRefund(
         PaymentTransaction  $payment,
         float               $refundAmount,
-        ?string $reason =   null,
-        ?string             $notes = null,
+        ?string             $reason = null,
+        ?string             $requestedBy = null,
     ): PaymentRefund {
         return $this->refundService->createRefund(
             $payment,
             $refundAmount,
             $reason,
-            $notes,
+            $requestedBy,
         );
     }
 

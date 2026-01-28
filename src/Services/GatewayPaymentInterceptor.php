@@ -25,13 +25,19 @@ class GatewayPaymentInterceptor
      */
     public function payment(array $data)
     {
-        // Step 1: Create payment record
         try {
+            // Call actual gateway payment method
+            $response = $this->gateway->payment($data);
+
+            // Create payment record
             $payment = $this->paymentService->createPayment(
                 gateway: $this->gatewayName,
-                amount: $data['amount'] ?? 0,
-                paymentData: $data,
+                amount: $response->getTotalAmount() ?? 0,
+                paymentData: $response->toArray(),
             );
+
+            // Dispatch payment initiated event
+            event(new PaymentInitiatedEvent($payment));
         } catch (\Exception $e) {
             \Log::error("Failed to create payment record: {$e->getMessage()}", [
                 'gateway' => $this->gatewayName,
@@ -41,27 +47,6 @@ class GatewayPaymentInterceptor
             throw DatabaseException::createFailed($this->gatewayName, $e->getMessage());
         }
 
-        // Dispatch payment initiated event
-        event(new PaymentInitiatedEvent($payment));
-
-        // Step 2: Call actual gateway payment method
-        $response = $this->gateway->payment($data);
-
-        // Step 3: Store transaction ID and full response
-        try {
-            $transactionId = $this->extractTransactionIdFromArray($response->toArray());
-
-            $payment->update([
-                'transaction_id' => $transactionId,
-                'gateway_response' => $response->toArray(),
-            ]);
-        } catch (\Exception $e) {
-            \Log::error("Failed to update payment record: {$e->getMessage()}", [
-                'payment_id' => $payment->id,
-            ]);
-        }
-
-        // Step 4: Return response to user
         return $response;
     }
 
@@ -105,19 +90,6 @@ class GatewayPaymentInterceptor
     /**
      * Extract transaction ID from gateway response.
      */
-    private function extractTransactionIdFromArray(array $response): ?string
-    {
-        // Try property access
-        if (isset($response['transaction_id'])) return $response['transaction_id'];
-
-        if (isset($response['transaction_uuid'])) return $response['transaction_uuid'];
-
-        if (isset($response['txn_id'])) return $response['txn_id'];
-
-        if (isset($response['pidx'])) return $response['pidx'];
-
-        return null;
-    }
 
     /**
      * Determine if response indicates success.

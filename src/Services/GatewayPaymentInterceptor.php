@@ -32,8 +32,8 @@ class GatewayPaymentInterceptor
             // Create payment record
             $payment = $this->paymentService->createPayment(
                 gateway: $this->gatewayName,
-                amount: $response->getTotalAmount() ?? 0,
-                paymentData: $response->toArray(),
+                amount: $data['total_amount'] ?? $data['amount'] ?? 0,
+                paymentData: array_merge($response->toArray(), $data),
             );
 
             // Dispatch payment initiated event

@@ -43,7 +43,7 @@ class PaymentService
                 'status' => PaymentStatus::PENDING,
                 'amount' => $amount,
                 'currency' => $paymentData['currency'] ?? 'NPR',
-                'reference_id' => $referenceId,
+                'merchant_reference_id' => $referenceId,
                 'gateway_response' => $gatewayResponseData,
                 'gateway_payload' => $gatewayPayloadData,
                 'payable_type' => $model?->getTable() ?? null,

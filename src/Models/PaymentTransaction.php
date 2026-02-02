@@ -20,6 +20,7 @@ class PaymentTransaction extends Model
         'amount' => 'decimal:2',
         'status' => PaymentStatus::class,
         'gateway_response' => 'json',
+        'gateway_payload' => 'json',
         'initiated_at' => 'datetime',
         'verified_at' => 'datetime',
         'completed_at' => 'datetime',

@@ -42,7 +42,7 @@ class PaymentService
                 'gateway' => $gateway,
                 'status' => PaymentStatus::PENDING,
                 'amount' => $amount,
-                'currency' => $paymentData['currency'] ?? 'NPR',
+                'currency' => $gatewayPayloadData['currency'] ?? 'NPR',
                 'merchant_reference_id' => $referenceId,
                 'gateway_response' => $gatewayResponseData,
                 'gateway_payload' => $gatewayPayloadData,

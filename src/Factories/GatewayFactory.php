@@ -26,6 +26,7 @@ class GatewayFactory
 
     /**
      * Create or retrieve a cached gateway instance by name.
+     *
      * @throws RuntimeException|InvalidPayloadException If gateway is not supported or config is missing
      */
     public function make(string|NepaliPaymentGateway $gateway): BasePaymentGateway
@@ -41,6 +42,7 @@ class GatewayFactory
 
     /**
      * Create a new gateway instance based on the gateway name.
+     *
      * @throws RuntimeException|InvalidPayloadException If configuration is missing
      */
     private function create(string $gatewayName): object
@@ -55,6 +57,7 @@ class GatewayFactory
 
     /**
      * Validate that a gateway name is supported.
+     *
      * @throws RuntimeException If gateway is not supported
      */
     private function validateGateway(string $gatewayName): void
@@ -64,15 +67,16 @@ class GatewayFactory
             NepaliPaymentGateway::cases(),
         );
 
-        if (!in_array($gatewayName, $supportedGateways)) {
+        if (! in_array($gatewayName, $supportedGateways)) {
             throw new RuntimeException(
-                "Unsupported gateway: {$gatewayName}. Supported gateways: " . implode(', ', $supportedGateways)
+                "Unsupported gateway: {$gatewayName}. Supported gateways: ".implode(', ', $supportedGateways)
             );
         }
     }
 
     /**
      * Create eSewa gateway instance.
+     *
      * @throws InvalidPayloadException
      */
     private function createEsewa(): Esewa
@@ -85,6 +89,7 @@ class GatewayFactory
 
     /**
      * Create Khalti gateway instance.
+     *
      * @throws InvalidPayloadException
      */
     private function createKhalti(): Khalti
@@ -92,11 +97,12 @@ class GatewayFactory
         $config = $this->config->get('nepali-payment.khalti');
         $this->ensureConfig('khalti', ['secret_key']);
 
-        return new Khalti($config['secret_key'],$config['environment']);
+        return new Khalti($config['secret_key'], $config['environment']);
     }
 
     /**
      * Create ConnectIps gateway instance.
+     *
      * @throws InvalidPayloadException
      */
     private function createConnectIps(): ConnectIps
@@ -121,6 +127,7 @@ class GatewayFactory
 
     /**
      * Ensure required configuration keys are set.
+     *
      * @throws RuntimeException If required config is missing
      */
     private function ensureConfig(string $gateway, array $keys): void

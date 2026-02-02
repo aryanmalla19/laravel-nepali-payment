@@ -20,6 +20,7 @@ class PaymentService
 
     /**
      * Create a new payment record in the database.
+     *
      * @throws DatabaseException
      */
     public function createPayment(
@@ -29,7 +30,9 @@ class PaymentService
         array $gatewayResponseData = [],
         ?Model $model = null,
     ): PaymentTransaction {
-        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
+        if (! $this->isDatabaseEnabled()) {
+            throw DatabaseException::disabled();
+        }
 
         try {
             // Generate unique reference ID if not provided
@@ -54,14 +57,17 @@ class PaymentService
 
     /**
      * Record payment verification in database.
+     *
      * @throws DatabaseException
      */
     public function recordPaymentVerification(
         PaymentTransaction $payment,
-        array              $verificationData,
-        bool               $isSuccess = true,
+        array $verificationData,
+        bool $isSuccess = true,
     ): void {
-        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
+        if (! $this->isDatabaseEnabled()) {
+            throw DatabaseException::disabled();
+        }
 
         try {
             $updateData = ['gateway_response' => $verificationData];
@@ -82,11 +88,14 @@ class PaymentService
 
     /**
      * Mark a payment as completed.
+     *
      * @throws DatabaseException
      */
     public function completePayment(PaymentTransaction $payment): void
     {
-        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
+        if (! $this->isDatabaseEnabled()) {
+            throw DatabaseException::disabled();
+        }
 
         try {
             $payment->update([
@@ -100,11 +109,14 @@ class PaymentService
 
     /**
      * Mark a payment as failed.
+     *
      * @throws DatabaseException
      */
     public function failPayment(PaymentTransaction $payment): void
     {
-        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
+        if (! $this->isDatabaseEnabled()) {
+            throw DatabaseException::disabled();
+        }
 
         try {
             $payment->markAsFailed();
@@ -115,6 +127,7 @@ class PaymentService
 
     /**
      * Find a payment by reference ID.
+     *
      * @throws DatabaseException
      */
     public function findByReference(string $referenceId): ?PaymentTransaction

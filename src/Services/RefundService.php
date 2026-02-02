@@ -7,8 +7,8 @@ namespace JaapTech\NepaliPayment\Services;
 use Illuminate\Contracts\Config\Repository;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Exceptions\PaymentException;
-use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use JaapTech\NepaliPayment\Models\PaymentRefund;
+use JaapTech\NepaliPayment\Models\PaymentTransaction;
 
 class RefundService
 {
@@ -19,15 +19,18 @@ class RefundService
 
     /**
      * Create a refund record for a payment.
+     *
      * @throws DatabaseException|PaymentException
      */
     public function createRefund(
-        PaymentTransaction  $payment,
-        float               $refundAmount,
-        ?string             $reason = null,
-        int|string|null     $requestedBy = null
+        PaymentTransaction $payment,
+        float $refundAmount,
+        ?string $reason = null,
+        int|string|null $requestedBy = null
     ): PaymentRefund {
-        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
+        if (! $this->isDatabaseEnabled()) {
+            throw DatabaseException::disabled();
+        }
 
         try {
             // Validate payment can be refunded
@@ -37,7 +40,7 @@ class RefundService
 
             // Validate refund amount
             if ($refundAmount > $payment->getRemainingRefundableAmount()) {
-                throw PaymentException::insufficientRefundableAmount($refundAmount,$payment->getRemainingRefundableAmount());
+                throw PaymentException::insufficientRefundableAmount($refundAmount, $payment->getRemainingRefundableAmount());
             }
 
             return PaymentRefund::create([
@@ -58,6 +61,7 @@ class RefundService
 
     /**
      * Process a refund with a gateway.
+     *
      * @throws DatabaseException
      */
     public function processRefund(
@@ -65,7 +69,9 @@ class RefundService
         array $responseData = [],
         bool $isSuccess = true
     ): void {
-        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
+        if (! $this->isDatabaseEnabled()) {
+            throw DatabaseException::disabled();
+        }
 
         try {
             if ($isSuccess) {

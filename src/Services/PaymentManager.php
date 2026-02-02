@@ -40,8 +40,10 @@ class PaymentManager
 
     /**
      * Get a gateway instance with auto-logging interceptor if database is enabled.
-     * @param string|NepaliPaymentGateway $gateway Gateway name or enum
+     *
+     * @param  string|NepaliPaymentGateway  $gateway  Gateway name or enum
      * @return object Gateway instance or intercepted gateway
+     *
      * @throws RuntimeException|InvalidPayloadException If gateway is not supported
      */
     public function gateway(string|NepaliPaymentGateway $gateway): object
@@ -61,6 +63,7 @@ class PaymentManager
 
     /**
      * Get eSewa gateway instance with auto-logging interceptor.
+     *
      * @throws InvalidPayloadException
      */
     public function esewa(): object
@@ -70,6 +73,7 @@ class PaymentManager
 
     /**
      * Get Khalti gateway instance with auto-logging interceptor.
+     *
      * @throws InvalidPayloadException
      */
     public function khalti(): object
@@ -79,6 +83,7 @@ class PaymentManager
 
     /**
      * Get ConnectIps gateway instance with auto-logging interceptor.
+     *
      * @throws InvalidPayloadException
      */
     public function connectips(): object
@@ -110,6 +115,7 @@ class PaymentManager
 
     /**
      * Record payment verification in database.
+     *
      * @throws DatabaseException
      */
     public function recordPaymentVerification(PaymentTransaction $payment, array $verificationData, bool $isSuccess = true): void
@@ -119,6 +125,7 @@ class PaymentManager
 
     /**
      * Mark a payment as completed.
+     *
      * @throws DatabaseException
      */
     public function completePayment(PaymentTransaction $payment): void
@@ -128,6 +135,7 @@ class PaymentManager
 
     /**
      * Mark a payment as failed.
+     *
      * @throws DatabaseException
      */
     public function failPayment(PaymentTransaction $payment): void
@@ -137,6 +145,7 @@ class PaymentManager
 
     /**
      * Find a payment by reference ID.
+     *
      * @throws DatabaseException
      */
     public function findPaymentByReference(string $referenceId): ?PaymentTransaction
@@ -150,16 +159,17 @@ class PaymentManager
      * Create a refund record for a payment.
      */
     public function createRefund(
-        PaymentTransaction  $payment,
-        float               $refundAmount,
-        ?string             $reason = null,
-        ?string             $requestedBy = null,
+        PaymentTransaction $payment,
+        float $refundAmount,
+        ?string $reason = null,
+        ?string $requestedBy = null,
     ): PaymentRefund {
         return $this->refundService->createRefund($payment, $refundAmount, $reason, $requestedBy);
     }
 
     /**
      * Process a refund with a gateway.
+     *
      * @throws DatabaseException
      */
     public function processRefund(PaymentRefund $refund, array $responseData = [], bool $isSuccess = true): void
@@ -171,6 +181,7 @@ class PaymentManager
 
     /**
      * Get all payments by status.
+     *
      * @throws DatabaseException
      */
     public function getPaymentsByStatus(PaymentStatus|string $status): Builder
@@ -195,6 +206,7 @@ class PaymentManager
 
     /**
      * Get all payments for a specific payable model.
+     *
      * @throws DatabaseException
      */
     public function getPaymentsForPayable(string $payableType, int|string $payableId): Builder
@@ -216,9 +228,9 @@ class PaymentManager
             NepaliPaymentGateway::cases()
         );
 
-        if (!in_array($gatewayName, $supportedGateways)) {
+        if (! in_array($gatewayName, $supportedGateways)) {
             throw new RuntimeException(
-                "Unsupported gateway: {$gatewayName}. Supported gateways: " . implode(', ', $supportedGateways)
+                "Unsupported gateway: {$gatewayName}. Supported gateways: ".implode(', ', $supportedGateways)
             );
         }
     }

@@ -8,6 +8,6 @@ class PaymentFailedEvent
 {
     public function __construct(
         public readonly PaymentTransaction $payment,
-        public readonly ?string            $reason = null
+        public readonly ?string $reason = null
     ) {}
 }

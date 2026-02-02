@@ -10,6 +10,7 @@ use JaapTech\NepaliPayment\Events\PaymentInitiatedEvent;
 use JaapTech\NepaliPayment\Events\PaymentProcessingEvent;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Services\PaymentService;
+
 use function JaapTech\NepaliPayment\Services\event;
 
 class GatewayPaymentInterceptor
@@ -23,6 +24,7 @@ class GatewayPaymentInterceptor
 
     /**
      * Intercept payment method call to auto-log to database.
+     *
      * @throws DatabaseException
      */
     public function payment(array $data)

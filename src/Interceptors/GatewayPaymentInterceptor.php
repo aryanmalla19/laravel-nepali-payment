@@ -11,8 +11,6 @@ use JaapTech\NepaliPayment\Events\PaymentProcessingEvent;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Services\PaymentService;
 
-use function JaapTech\NepaliPayment\Services\event;
-
 class GatewayPaymentInterceptor
 {
     public function __construct(

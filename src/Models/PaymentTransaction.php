@@ -90,15 +90,7 @@ class PaymentTransaction extends Model
      */
     public function scopeByReference($query, string $referenceId)
     {
-        return $query->where('reference_id', $referenceId);
-    }
-
-    /**
-     * Scope: Filter by transaction ID.
-     */
-    public function scopeByTransactionId($query, string $transactionId)
-    {
-        return $query->where('transaction_id', $transactionId);
+        return $query->where('merchant_reference_id', $referenceId);
     }
 
     /**

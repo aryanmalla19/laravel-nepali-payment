@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Model;
+use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Facades\NepaliPayment;
 use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use JaapTech\NepaliPayment\Models\PaymentRefund;
@@ -30,39 +32,24 @@ if (!function_exists('nepali_payment_find')) {
     }
 }
 
-if (!function_exists('nepali_payment_find_by_gateway_id')) {
-    /**
-     * Find a payment by gateway transaction ID.
-     */
-    function nepali_payment_find_by_gateway_id(string $gatewayTransactionId): ?PaymentTransaction
-    {
-        if (!nepali_payment_enabled()) {
-            return null;
-        }
-
-        return PaymentTransaction::byGatewayTransactionId($gatewayTransactionId)->first();
-    }
-}
-
 if (!function_exists('nepali_payment_create')) {
     /**
      * Create a new payment record.
+     * @throws DatabaseException
      */
     function nepali_payment_create(
         string          $gateway,
         float           $amount,
-        array           $paymentData = [],
-        ?string         $payableType = null,
-        int|string|null $payableId = null,
-        array           $metadata = []
+        array           $gatewayPayloadData = [],
+        array           $gatewayResponseData = [],
+        ?Model $model = null,
     ): PaymentTransaction {
         return NepaliPayment::createPayment(
             $gateway,
             $amount,
-            $paymentData,
-            $payableType,
-            $payableId,
-            $metadata
+            $gatewayPayloadData,
+            $gatewayResponseData,
+            $model,
         );
     }
 }
@@ -76,15 +63,8 @@ if (!function_exists('nepali_payment_refund')) {
         float              $refundAmount,
         string             $reason = 'user_request',
         ?string            $notes = null,
-        int|string|null $requestedBy = null
     ): PaymentRefund {
-        return NepaliPayment::createRefund(
-            $payment,
-            $refundAmount,
-            $reason,
-            $notes,
-            $requestedBy
-        );
+        return NepaliPayment::createRefund($payment, $refundAmount, $reason, $notes);
     }
 }
 

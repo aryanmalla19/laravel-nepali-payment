@@ -25,11 +25,11 @@ return new class extends Migration
             $table->decimal('amount', 10);
             $table->string('currency')->default('NPR');
 
-            // Transaction IDs
-            $table->string('reference_id')->unique();
-            $table->string('transaction_id')->nullable()->unique();
+            // Merchant Reference ID
+            $table->string('merchant_reference_id')->unique();
 
             // Gateway Response Storage
+            $table->json('gateway_payload')->nullable();
             $table->json('gateway_response')->nullable();
 
             // Lifecycle Timestamps

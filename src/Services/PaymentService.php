@@ -25,15 +25,15 @@ class PaymentService
     public function createPayment(
         string $gateway,
         float $amount,
-        array $paymentData = [],
+        array $gatewayPayloadData = [],
+        array $gatewayResponseData = [],
         ?Model $model = null,
     ): PaymentTransaction {
         if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
 
         try {
             // Generate unique reference ID if not provided
-            $referenceId = $paymentData['transaction_uuid'] ?? $paymentData['reference_id'] ?? $paymentData['purchase_order_id'] ?? Str::uuid()->toString();
-            $transactionId = $paymentData['transaction_uuid'] ?? $paymentData['transaction_id'] ?? $paymentData['pidx'] ?? $paymentData['txn_id'] ?? Str::uuid()->toString();
+            $referenceId = $gatewayResponseData['pidx'] ?? $gatewayResponseData['transaction_uuid'] ?? $gatewayResponseData['txn_id'] ?? Str::uuid()->toString();
 
             return PaymentTransaction::create([
                 'gateway' => $gateway,
@@ -41,8 +41,8 @@ class PaymentService
                 'amount' => $amount,
                 'currency' => $paymentData['currency'] ?? 'NPR',
                 'reference_id' => $referenceId,
-                'transaction_id' => $transactionId,
-                'gateway_response' => $paymentData,
+                'gateway_response' => $gatewayResponseData,
+                'gateway_payload' => $gatewayPayloadData,
                 'payable_type' => $model?->getTable() ?? null,
                 'payable_id' => $model?->getKey() ?? null,
                 'initiated_at' => now(),
@@ -120,15 +120,6 @@ class PaymentService
     public function findByReference(string $referenceId): ?PaymentTransaction
     {
         return $this->queryService->findByReference($referenceId);
-    }
-
-    /**
-     * Find a payment by gateway transaction ID.
-     * @throws DatabaseException
-     */
-    public function findByTransactionId(string $gatewayTransactionId): ?PaymentTransaction
-    {
-        return $this->queryService->findByTransactionId($gatewayTransactionId);
     }
 
     /**

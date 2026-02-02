@@ -10,8 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 use JaapTech\NepaliPayment\Enums\NepaliPaymentGateway;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
-use JaapTech\NepaliPayment\Models\PaymentTransaction;
+use JaapTech\NepaliPayment\Factories\GatewayFactory;
+use JaapTech\NepaliPayment\Interceptors\GatewayPaymentInterceptor;
 use JaapTech\NepaliPayment\Models\PaymentRefund;
+use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use Kbk\NepaliPaymentGateway\Exceptions\InvalidPayloadException;
 use RuntimeException;
 
@@ -31,7 +33,6 @@ class PaymentManager
         protected PaymentTransactionQueryService $queryService,
         protected GatewayFactory $gatewayFactory
     ) {
-        // Cache the database enabled flag once during construction
         $this->isDatabaseEnabled = (bool) $config->get('nepali-payment.database.enabled', false);
     }
 
@@ -95,7 +96,8 @@ class PaymentManager
     public function createPayment(
         string|NepaliPaymentGateway $gateway,
         float $amount,
-        array $paymentData = [],
+        array $gatewayPayloadData = [],
+        array $gatewayResponseData = [],
         ?Model $model = null,
     ): PaymentTransaction {
 
@@ -103,7 +105,7 @@ class PaymentManager
 
         $this->validateGateway($gatewayName);
 
-        return $this->paymentService->createPayment($gatewayName, $amount, $paymentData, $model);
+        return $this->paymentService->createPayment($gatewayName, $amount, $gatewayPayloadData, $gatewayResponseData, $model);
     }
 
     /**
@@ -142,15 +144,6 @@ class PaymentManager
         return $this->paymentService->findByReference($referenceId);
     }
 
-    /**
-     * Find a payment by gateway transaction ID.
-     * @throws DatabaseException
-     */
-    public function findPaymentByTransactionId(string $gatewayTransactionId): ?PaymentTransaction
-    {
-        return $this->paymentService->findByTransactionId($gatewayTransactionId);
-    }
-
     // ============= Delegated Refund Operations =============
 
     /**
@@ -162,12 +155,7 @@ class PaymentManager
         ?string             $reason = null,
         ?string             $requestedBy = null,
     ): PaymentRefund {
-        return $this->refundService->createRefund(
-            $payment,
-            $refundAmount,
-            $reason,
-            $requestedBy,
-        );
+        return $this->refundService->createRefund($payment, $refundAmount, $reason, $requestedBy);
     }
 
     /**

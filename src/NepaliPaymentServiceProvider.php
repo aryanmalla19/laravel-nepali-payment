@@ -6,10 +6,10 @@ namespace JaapTech\NepaliPayment;
 
 use Illuminate\Support\ServiceProvider;
 use JaapTech\NepaliPayment\Console\CheckConfig;
-use JaapTech\NepaliPayment\Services\GatewayFactory;
+use JaapTech\NepaliPayment\Factories\GatewayFactory;
 use JaapTech\NepaliPayment\Services\PaymentManager;
-use JaapTech\NepaliPayment\Services\PaymentTransactionQueryService;
 use JaapTech\NepaliPayment\Services\PaymentService;
+use JaapTech\NepaliPayment\Services\PaymentTransactionQueryService;
 use JaapTech\NepaliPayment\Services\RefundService;
 
 class NepaliPaymentServiceProvider extends ServiceProvider

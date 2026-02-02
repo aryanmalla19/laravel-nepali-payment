@@ -26,17 +26,6 @@ class PaymentTransactionQueryService
     }
 
     /**
-     * Find a payment by gateway transaction ID.
-     * @throws DatabaseException
-     */
-    public function findByTransactionId(string $transactionId): ?PaymentTransaction
-    {
-        if (! $this->isDatabaseEnabled()) throw DatabaseException::disabled();
-
-        return PaymentTransaction::byTransactionId($transactionId)->first();
-    }
-
-    /**
      * Get all payments by status.
      * @throws DatabaseException
      */

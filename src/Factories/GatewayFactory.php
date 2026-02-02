@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace JaapTech\NepaliPayment\Services;
+namespace JaapTech\NepaliPayment\Factories;
 
 use Illuminate\Contracts\Config\Repository;
 use JaapTech\NepaliPayment\Enums\NepaliPaymentGateway;
+use Kbk\NepaliPaymentGateway\Contracts\BasePaymentGateway;
 use Kbk\NepaliPaymentGateway\Epay\ConnectIps;
 use Kbk\NepaliPaymentGateway\Epay\Esewa;
 use Kbk\NepaliPaymentGateway\Epay\Khalti;
@@ -27,7 +28,7 @@ class GatewayFactory
      * Create or retrieve a cached gateway instance by name.
      * @throws RuntimeException|InvalidPayloadException If gateway is not supported or config is missing
      */
-    public function make(string|NepaliPaymentGateway $gateway): object
+    public function make(string|NepaliPaymentGateway $gateway): BasePaymentGateway
     {
         // Convert enum to string if needed
         $gatewayName = $gateway instanceof NepaliPaymentGateway ? $gateway->value : $gateway;

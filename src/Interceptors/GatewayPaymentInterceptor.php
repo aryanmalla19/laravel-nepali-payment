@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
-namespace JaapTech\NepaliPayment\Services;
+namespace JaapTech\NepaliPayment\Interceptors;
 
 use Illuminate\Contracts\Config\Repository;
 use JaapTech\NepaliPayment\Events\PaymentFailedEvent;
 use JaapTech\NepaliPayment\Events\PaymentInitiatedEvent;
 use JaapTech\NepaliPayment\Events\PaymentProcessingEvent;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
+use JaapTech\NepaliPayment\Services\PaymentService;
+use function JaapTech\NepaliPayment\Services\event;
 
 class GatewayPaymentInterceptor
 {
@@ -33,7 +35,8 @@ class GatewayPaymentInterceptor
             $payment = $this->paymentService->createPayment(
                 gateway: $this->gatewayName,
                 amount: $data['total_amount'] ?? $data['amount'] ?? 0,
-                paymentData: array_merge($response->toArray(), $data),
+                gatewayPayloadData: $data,
+                gatewayResponseData: $response->toArray(),
             );
 
             // Dispatch payment initiated event
@@ -61,12 +64,12 @@ class GatewayPaymentInterceptor
         // Step 2: Update payment record
         try {
             // Try to find payment by gateway transaction ID
-            $transactionId = $data['pidx'] ?? $data['transaction_uuid'] ?? $data['transaction_id'] ?? $data['txn_id'] ?? '';
+            $merchantReferenceId = $data['pidx'] ?? $data['transaction_uuid'] ?? $data['txn_id'] ?? '';
 
-            $payment = $this->paymentService->findByTransactionId($transactionId);
+            $payment = $this->paymentService->findByReference($merchantReferenceId);
 
             if ($payment) {
-                $isSuccess = $this->isResponseSuccess($response);
+                $isSuccess = $response->isSuccess();
 
                 $this->paymentService->recordPaymentVerification($payment, $response->toArray(), $isSuccess);
 
@@ -85,34 +88,6 @@ class GatewayPaymentInterceptor
 
         // Step 3: Return response to user
         return $response;
-    }
-
-    /**
-     * Extract transaction ID from gateway response.
-     */
-
-    /**
-     * Determine if response indicates success.
-     */
-    private function isResponseSuccess(object $response): bool
-    {
-        // Try common method names
-        if (method_exists($response, 'isSuccess')) {
-            return (bool) $response->isSuccess();
-        }
-
-        if (method_exists($response, 'getStatus')) {
-            $status = $response->getStatus();
-
-            return in_array(strtolower($status), ['success', 'completed', 'approved']);
-        }
-
-        // Try property access
-        if (isset($response->status)) {
-            return in_array(strtolower($response->status), ['success', 'completed', 'approved']);
-        }
-
-        return false;
     }
 
     /**

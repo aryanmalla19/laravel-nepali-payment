@@ -74,6 +74,8 @@ class GatewayPaymentInterceptor
         // Step 1: Call actual gateway verify method
         $response = $this->gateway->verify($data);
 
+        if  (! $this->isDatabaseEnabled) return $response;
+
         // Step 2: Update payment record
         try {
             // Extract merchant reference ID using strategy

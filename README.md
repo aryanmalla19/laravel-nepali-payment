@@ -432,18 +432,6 @@ class PaymentController extends Controller
 {
     public function create(Order $order)
     {
-        // Create payment record in database
-        $payment = NepaliPayment::createPayment(
-            gateway: 'esewa',
-            amount: $order->total,
-            paymentData: [
-                'description' => "Order #{$order->id}",
-            ],
-            payableType: Order::class,
-            payableId: $order->id,
-            metadata: ['order_id' => $order->id]
-        );
-
         // Initiate payment with gateway
         $response = NepaliPayment::esewa()->payment([
             'amount' => $order->total,
@@ -515,17 +503,4 @@ This package is licensed under the MIT License. See the LICENSE file for details
 
 ## Support
 
-For issues, questions, or contributions, visit the [GitHub repository](https://github.com/aryanmalla19/nepali-payment-gateway).
-
-## Changelog
-
-### v0.1.0 - Database Integration Release
-- Added Payment and PaymentRefund models with full relationship support
-- Implemented PaymentStatus, RefundReason, and RefundStatus enums
-- Created PaymentManager database methods for tracking payment lifecycle
-- Added event system for payment state changes
-- Published migrations for easy database setup
-- Added helper functions for common operations
-- Added comprehensive query scopes for filtering payments
-- Support for polymorphic payment associations
-- UUID/] configuration for primary keys
+For issues, questions, or contributions, visit the [GitHub repository](https://github.com/aryanmalla19/laravel-nepali-payment).

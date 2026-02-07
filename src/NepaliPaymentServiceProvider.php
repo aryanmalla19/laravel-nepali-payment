@@ -49,7 +49,6 @@ class NepaliPaymentServiceProvider extends ServiceProvider
             return new PaymentManager(
                 $app->make('config'),
                 $app->make(PaymentService::class),
-                $app->make(RefundService::class),
                 $app->make(PaymentTransactionQueryService::class),
                 $app->make(GatewayFactory::class)
             );

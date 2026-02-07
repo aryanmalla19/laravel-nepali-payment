@@ -23,18 +23,12 @@ use RuntimeException;
  */
 class PaymentManager
 {
-    private bool $isDatabaseEnabled;
-
     public function __construct(
         protected Repository $config,
         protected PaymentService $paymentService,
-        protected RefundService $refundService,
         protected PaymentTransactionQueryService $queryService,
-        protected GatewayFactory $gatewayFactory,
-        protected StrategyFactory $strategyFactory
-    ) {
-        $this->isDatabaseEnabled = (bool) $config->get('nepali-payment.database.enabled', false);
-    }
+        protected GatewayFactory $gatewayFactory
+    ) {}
 
     // ============= Gateway Access with Auto-Logging =============
 
@@ -51,10 +45,13 @@ class PaymentManager
         // Validate and get gateway instance from factory
         $gatewayInstance = $this->gatewayFactory->make($gateway);
 
-        // Create strategy for this gateway
-        $strategy = $this->strategyFactory->make($gateway);
+        // Create strategy for this gateway using static factory
+        $strategy = StrategyFactory::make($gateway, $this->config);
 
-        return new GatewayPaymentInterceptor($gatewayInstance, $this->paymentService, $strategy, $this->config);
+        // Get gateway name string
+        $gatewayName = $gateway instanceof NepaliPaymentGateway ? $gateway->value : $gateway;
+
+        return new GatewayPaymentInterceptor($gatewayInstance, $this->paymentService, $strategy, $gatewayName, $this->config);
     }
 
     /**

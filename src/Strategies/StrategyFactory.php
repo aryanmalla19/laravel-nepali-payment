@@ -10,27 +10,27 @@ use RuntimeException;
 
 /**
  * Factory for creating payment interceptor strategies.
+ * Uses static methods for simple, stateless strategy creation.
  */
 class StrategyFactory
 {
-    public function __construct(private readonly Repository $config) {}
-
     /**
      * Create a strategy instance for the given gateway.
      *
      * @param string|NepaliPaymentGateway $gateway Gateway name or enum
+     * @param Repository $config Configuration repository
      * @return PaymentInterceptorStrategy
      *
      * @throws RuntimeException If gateway is not supported
      */
-    public function make(string|NepaliPaymentGateway $gateway): PaymentInterceptorStrategy
+    public static function make(string|NepaliPaymentGateway $gateway, Repository $config): PaymentInterceptorStrategy
     {
         $gatewayName = $gateway instanceof NepaliPaymentGateway ? $gateway->value : $gateway;
 
         return match ($gatewayName) {
-            NepaliPaymentGateway::KHALTI->value => new KhaltiStrategy($this->config),
-            NepaliPaymentGateway::ESEWA->value => new EsewaStrategy($this->config),
-            NepaliPaymentGateway::CONNECTIPS->value => new ConnectIpsStrategy($this->config),
+            NepaliPaymentGateway::KHALTI->value => new KhaltiStrategy($config),
+            NepaliPaymentGateway::ESEWA->value => new EsewaStrategy($config),
+            NepaliPaymentGateway::CONNECTIPS->value => new ConnectIpsStrategy($config),
             default => throw new RuntimeException("Unsupported gateway for strategy: {$gatewayName}"),
         };
     }

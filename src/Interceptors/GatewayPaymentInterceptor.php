@@ -21,6 +21,7 @@ class GatewayPaymentInterceptor
         private readonly object $gateway,
         private readonly PaymentService $paymentService,
         private readonly PaymentInterceptorStrategy $strategy,
+        private readonly string $gatewayName,
         protected Repository $config
     ) {
         $this->isDatabaseEnabled = (bool) $config->get('nepali-payment.database.enabled', false);
@@ -44,13 +45,13 @@ class GatewayPaymentInterceptor
             if ($this->isDatabaseEnabled) {
                 try {
                     $payment = $this->paymentService->createPayment(
-                        gateway: $this->strategy::class,
+                        gateway: $this->gatewayName,
                         amount: $data['total_amount'] ?? $data['amount'] ?? 0,
                         gatewayPayloadData: $data,
                         gatewayResponseData: $response->toArray(),
                     );
                 } catch (\Exception $e) {
-                    throw DatabaseException::createFailed($this->strategy::class, $e->getMessage());
+                    throw DatabaseException::createFailed($this->gatewayName, $e->getMessage());
                 }
                 // Dispatch payment initiated event
                 event(new PaymentInitiatedEvent($payment));

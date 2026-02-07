@@ -4,10 +4,14 @@ return [
     'esewa' => [
         'product_code' => env('ESEWA_PRODUCT_CODE'),
         'secret_key' => env('ESEWA_SECRET_KEY'),
+        'success_url' => env('ESEWA_SUCCESS_URL'),
+        'failure_url' => env('ESEWA_FAILURE_URL'),
     ],
     'khalti' => [
         'secret_key' => env('KHALTI_SECRET_KEY'),
         'environment' => strtolower(env('KHALTI_ENVIRONMENT', 'test')),
+        'success_url' => strtolower(env('KHALTI_SUCCESS_URL')),
+        'website_url' => strtolower(env('KHALTI_WEBSITE_URL')),
     ],
     'connectips' => [
         'merchant_id' => env('CONNECTIPS_MERCHANT_ID'),

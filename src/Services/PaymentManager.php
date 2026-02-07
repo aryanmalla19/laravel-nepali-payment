@@ -6,13 +6,11 @@ namespace JaapTech\NepaliPayment\Services;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use JaapTech\NepaliPayment\Enums\NepaliPaymentGateway;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Factories\GatewayFactory;
 use JaapTech\NepaliPayment\Interceptors\GatewayPaymentInterceptor;
-use JaapTech\NepaliPayment\Models\PaymentRefund;
 use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use Kbk\NepaliPaymentGateway\Exceptions\InvalidPayloadException;
 use RuntimeException;
@@ -51,14 +49,9 @@ class PaymentManager
         // Validate and get gateway instance from factory
         $gatewayInstance = $this->gatewayFactory->make($gateway);
 
-        // Wrap with interceptor if database is enabled (only once during construction)
-        if ($this->isDatabaseEnabled) {
-            $gatewayName = $gateway instanceof NepaliPaymentGateway ? $gateway->value : $gateway;
+        $gatewayName = $gateway instanceof NepaliPaymentGateway ? $gateway->value : $gateway;
 
-            return new GatewayPaymentInterceptor($gatewayInstance, $this->paymentService, $gatewayName, $this->config);
-        }
-
-        return $gatewayInstance;
+        return new GatewayPaymentInterceptor($gatewayInstance, $this->paymentService, $gatewayName, $this->config);
     }
 
     /**
@@ -91,38 +84,6 @@ class PaymentManager
         return $this->gateway(NepaliPaymentGateway::CONNECTIPS);
     }
 
-    // ============= Delegated Payment Operations =============
-
-    /**
-     * Create a new payment record in the database.
-     *
-     * @throws RuntimeException|DatabaseException If gateway is not supported
-     */
-    public function createPayment(
-        string|NepaliPaymentGateway $gateway,
-        float $amount,
-        array $gatewayPayloadData = [],
-        array $gatewayResponseData = [],
-        ?Model $model = null,
-    ): PaymentTransaction {
-
-        $gatewayName = $gateway instanceof NepaliPaymentGateway ? $gateway->value : $gateway;
-
-        $this->validateGateway($gatewayName);
-
-        return $this->paymentService->createPayment($gatewayName, $amount, $gatewayPayloadData, $gatewayResponseData, $model);
-    }
-
-    /**
-     * Record payment verification in database.
-     *
-     * @throws DatabaseException
-     */
-    public function recordPaymentVerification(PaymentTransaction $payment, array $verificationData, bool $isSuccess = true): void
-    {
-        $this->paymentService->recordPaymentVerification($payment, $verificationData, $isSuccess);
-    }
-
     /**
      * Mark a payment as completed.
      *
@@ -134,16 +95,6 @@ class PaymentManager
     }
 
     /**
-     * Mark a payment as failed.
-     *
-     * @throws DatabaseException
-     */
-    public function failPayment(PaymentTransaction $payment): void
-    {
-        $this->paymentService->failPayment($payment);
-    }
-
-    /**
      * Find a payment by reference ID.
      *
      * @throws DatabaseException
@@ -152,32 +103,6 @@ class PaymentManager
     {
         return $this->paymentService->findByReference($referenceId);
     }
-
-    // ============= Delegated Refund Operations =============
-
-    /**
-     * Create a refund record for a payment.
-     */
-    public function createRefund(
-        PaymentTransaction $payment,
-        float $refundAmount,
-        ?string $reason = null,
-        ?string $requestedBy = null,
-    ): PaymentRefund {
-        return $this->refundService->createRefund($payment, $refundAmount, $reason, $requestedBy);
-    }
-
-    /**
-     * Process a refund with a gateway.
-     *
-     * @throws DatabaseException
-     */
-    public function processRefund(PaymentRefund $refund, array $responseData = [], bool $isSuccess = true): void
-    {
-        $this->refundService->processRefund($refund, $responseData, $isSuccess);
-    }
-
-    // ============= Delegated Query Operations =============
 
     /**
      * Get all payments by status.

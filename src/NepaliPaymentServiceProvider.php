@@ -11,6 +11,7 @@ use JaapTech\NepaliPayment\Services\PaymentManager;
 use JaapTech\NepaliPayment\Services\PaymentService;
 use JaapTech\NepaliPayment\Services\PaymentTransactionQueryService;
 use JaapTech\NepaliPayment\Services\RefundService;
+use JaapTech\NepaliPayment\Strategies\StrategyFactory;
 
 class NepaliPaymentServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,13 @@ class NepaliPaymentServiceProvider extends ServiceProvider
         // Register GatewayFactory with config dependency
         $this->app->singleton(GatewayFactory::class, function ($app) {
             return new GatewayFactory(
+                $app->make('config')
+            );
+        });
+
+        // Register StrategyFactory with config dependency
+        $this->app->singleton(StrategyFactory::class, function ($app) {
+            return new StrategyFactory(
                 $app->make('config')
             );
         });
@@ -45,14 +53,15 @@ class NepaliPaymentServiceProvider extends ServiceProvider
             );
         });
 
-        // PaymentManager depends on config, all 3 services, and GatewayFactory
+        // PaymentManager depends on config, all 3 services, GatewayFactory, and StrategyFactory
         $this->app->singleton(PaymentManager::class, function ($app) {
             return new PaymentManager(
                 $app->make('config'),
                 $app->make(PaymentService::class),
                 $app->make(RefundService::class),
                 $app->make(PaymentTransactionQueryService::class),
-                $app->make(GatewayFactory::class)
+                $app->make(GatewayFactory::class),
+                $app->make(StrategyFactory::class)
             );
         });
     }

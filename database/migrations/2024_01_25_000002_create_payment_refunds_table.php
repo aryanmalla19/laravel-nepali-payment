@@ -18,7 +18,7 @@ return new class extends Migration
             $table->uuid('payment_id');
             $table->foreign('payment_id')
                 ->references('id')
-                ->on('payments')
+                ->on('payment_transactions')
                 ->cascadeOnDelete();
 
             // Refund Details

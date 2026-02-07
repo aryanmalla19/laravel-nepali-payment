@@ -12,6 +12,7 @@ use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Factories\GatewayFactory;
 use JaapTech\NepaliPayment\Interceptors\GatewayPaymentInterceptor;
 use JaapTech\NepaliPayment\Models\PaymentTransaction;
+use JaapTech\NepaliPayment\Strategies\StrategyFactory;
 use Kbk\NepaliPaymentGateway\Exceptions\InvalidPayloadException;
 use RuntimeException;
 
@@ -29,7 +30,8 @@ class PaymentManager
         protected PaymentService $paymentService,
         protected RefundService $refundService,
         protected PaymentTransactionQueryService $queryService,
-        protected GatewayFactory $gatewayFactory
+        protected GatewayFactory $gatewayFactory,
+        protected StrategyFactory $strategyFactory
     ) {
         $this->isDatabaseEnabled = (bool) $config->get('nepali-payment.database.enabled', false);
     }
@@ -49,9 +51,10 @@ class PaymentManager
         // Validate and get gateway instance from factory
         $gatewayInstance = $this->gatewayFactory->make($gateway);
 
-        $gatewayName = $gateway instanceof NepaliPaymentGateway ? $gateway->value : $gateway;
+        // Create strategy for this gateway
+        $strategy = $this->strategyFactory->make($gateway);
 
-        return new GatewayPaymentInterceptor($gatewayInstance, $this->paymentService, $gatewayName, $this->config);
+        return new GatewayPaymentInterceptor($gatewayInstance, $this->paymentService, $strategy, $this->config);
     }
 
     /**

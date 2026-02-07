@@ -11,18 +11,19 @@ use JaapTech\NepaliPayment\Events\PaymentInitiatedEvent;
 use JaapTech\NepaliPayment\Events\PaymentProcessingEvent;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Services\PaymentService;
+use JaapTech\NepaliPayment\Strategies\PaymentInterceptorStrategy;
 
 class GatewayPaymentInterceptor
 {
-    private bool $isDatabseEnabled;
+    private bool $isDatabaseEnabled;
 
     public function __construct(
         private readonly object $gateway,
         private readonly PaymentService $paymentService,
-        private readonly string $gatewayName,
+        private readonly PaymentInterceptorStrategy $strategy,
         protected Repository $config
     ) {
-        $this->isDatabseEnabled = (bool) $config->get('nepali-payment.database.enabled', false);
+        $this->isDatabaseEnabled = (bool) $config->get('nepali-payment.database.enabled', false);
     }
 
     /**
@@ -33,45 +34,23 @@ class GatewayPaymentInterceptor
     public function payment(array $data)
     {
         try {
+            // Build gateway-specific payment data using strategy
+            $paymentData = $this->strategy->buildPaymentData($data);
+
             // Call actual gateway payment method
-            if ($this->gatewayName === 'KHALTI') {
-                $response = $this->gateway->payment(array_merge(
-                    [
-                        'success_url' => $this->config->get('nepali-payment.gateways.khalti.success_url'),
-                        'website_url' => $this->config->get('nepali-payment.gateways.khalti.website_url'),
-                    ],
-                    $data,
-                ));
-            } else if ($this->gatewayName === 'ESEWA') {
-                $response = $this->gateway->payment(array_merge(
-                    [
-                        'success_url' => $this->config->get('nepali-payment.gateways.esewa.success_url'),
-                        'failure_url' => $this->config->get('nepali-payment.gateways.esewa.failure_url'),
-                    ],
-                    $data,
-                ));
-            } else if ($this->gatewayName === 'CONNECTIPS') {
-                $response = $this->gateway->payment(array_merge(
-                    [
-                        'return_url' => $this->config->get('nepali-payment.gateways.connectips.return_url'),
-                    ],
-                    $data,
-                ));
-            } else {
-                $response = $this->gateway->payment($data);
-            }
+            $response = $this->gateway->payment($paymentData);
 
             // Create payment record
-            if ($this->isDatabseEnabled) {
+            if ($this->isDatabaseEnabled) {
                 try {
                     $payment = $this->paymentService->createPayment(
-                        gateway: $this->gatewayName,
+                        gateway: $this->strategy::class,
                         amount: $data['total_amount'] ?? $data['amount'] ?? 0,
                         gatewayPayloadData: $data,
                         gatewayResponseData: $response->toArray(),
                     );
-                }  catch (\Exception $e) {
-                    throw DatabaseException::createFailed($this->gatewayName, $e->getMessage());
+                } catch (\Exception $e) {
+                    throw DatabaseException::createFailed($this->strategy::class, $e->getMessage());
                 }
                 // Dispatch payment initiated event
                 event(new PaymentInitiatedEvent($payment));
@@ -79,7 +58,10 @@ class GatewayPaymentInterceptor
 
             return $response;
         } catch (\Exception $e) {
-//            throw DatabaseException::createFailed($this->gatewayName, $e->getMessage());
+            Log::error("Payment interception failed: {$e->getMessage()}", [
+                'data' => $data,
+            ]);
+            throw $e;
         }
     }
 
@@ -93,18 +75,18 @@ class GatewayPaymentInterceptor
 
         // Step 2: Update payment record
         try {
-            // Try to find payment by gateway transaction ID
-            if ($this->gatewayName === 'KHALTI') {
-                $merchantReferenceId = $data['pidx'];
+            // Extract merchant reference ID using strategy
+            $merchantReferenceId = $this->strategy->extractReferenceId($data);
 
-            } else if ($this->gatewayName === 'ESEWA') {
-                $merchantReferenceId = $data['transaction_uuid'];
+            if ($merchantReferenceId === null) {
+                Log::warning('Could not extract merchant reference ID from verification data', [
+                    'data' => $data,
+                ]);
 
-            } else if ($this->gatewayName === 'CONNECTIPS') {
-                $merchantReferenceId = $data['transaction_uuid'] ?? $data['txn_id'];
+                return $response;
             }
 
-            $payment = $this->paymentService->findByReference($merchantReferenceId ?? '');
+            $payment = $this->paymentService->findByReference($merchantReferenceId);
 
             if ($payment) {
                 $isSuccess = $response->isSuccess();

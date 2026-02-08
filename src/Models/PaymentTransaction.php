@@ -17,7 +17,7 @@ class PaymentTransaction extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'amount' => 'decimal:2',
+        'amount' => 'float',
         'status' => PaymentStatus::class,
         'gateway_response' => 'json',
         'gateway_payload' => 'json',

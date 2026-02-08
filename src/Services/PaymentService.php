@@ -22,6 +22,7 @@ class PaymentService
      * Create a new payment record in the database.
      *
      * @throws DatabaseException
+     * @throws \Throwable
      */
     public function createPayment(
         string $gateway,
@@ -30,9 +31,7 @@ class PaymentService
         array $gatewayResponseData = [],
         ?Model $model = null,
     ): PaymentTransaction {
-        if (! $this->isDatabaseEnabled()) {
-            throw DatabaseException::disabled();
-        }
+        throw_if(! $this->isDatabaseEnabled(), DatabaseException::disabled());
 
         try {
             // Generate unique reference ID if not provided

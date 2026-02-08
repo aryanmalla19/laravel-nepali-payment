@@ -139,18 +139,6 @@ Now you can track payments:
 ```php
 use NepaliPayment;
 
-// Create a payment record
-$payment = NepaliPayment::createPayment(
-    gateway: 'esewa',
-    amount: 1000,
-    paymentData: [
-        'reference_id' => 'ref-123',
-        'description' => 'Product purchase',
-    ],
-    payableType: 'App\Models\User',
-    payableId: auth()->id(),
-    metadata: ['product_id' => 1]
-);
 
 // Initiate payment with gateway
 $response = NepaliPayment::esewa()->payment([
@@ -186,28 +174,25 @@ The `Payment` model stores all payment records with full lifecycle tracking.
 
 ```php
 // Find payment by reference ID
-Payment::byReference('ref-123')->first();
-
-// Find by gateway transaction ID
-Payment::byGatewayTransactionId('txn-456')->first();
+PaymentTransaction::byReference('ref-123')->first();
 
 // Filter by gateway
-Payment::byGateway('esewa')->get();
+PaymentTransaction::byGateway('esewa')->get();
 
 // Filter by status
-Payment::byStatus('completed')->get();
+PaymentTransaction::byStatus('completed')->get();
 
 // Completed payments only
-Payment::completed()->get();
+PaymentTransaction::completed()->get();
 
 // Failed payments only
-Payment::failed()->get();
+PaymentTransaction::failed()->get();
 
 // Pending/processing payments
-Payment::pending()->get();
+PaymentTransaction::pending()->get();
 
 // Filter by payable type and ID
-Payment::forPayable('App\Models\User', $userId)->get();
+PaymentTransaction::forPayable('App\Models\User', $userId)->get();
 ```
 
 **Methods:**
@@ -272,14 +257,14 @@ $refund->payment;  // The associated payment
 
 ## Payment Statuses
 
-| Status | Meaning | Transitions |
-|--------|---------|-------------|
-| `pending` | Initial state, awaiting user payment | → processing, failed, cancelled |
-| `processing` | Payment verified, awaiting final confirmation | → completed, failed |
-| `completed` | Payment successful ✓ | → refunded |
-| `failed` | Payment failed | (terminal) |
-| `refunded` | Payment refunded | (terminal) |
-| `cancelled` | User cancelled payment | (terminal) |
+| Status              | Meaning | Transitions |
+|---------------------|---------|-------------|
+| `pending`           | Initial state, awaiting user payment | → processing, failed, cancelled |
+| `processing (paid)` | Payment verified, awaiting final confirmation | → completed, failed |
+| `completed`         | Payment successful ✓ | → refunded |
+| `failed`            | Payment failed | (terminal) |
+| `refunded`          | Payment refunded | (terminal) |
+| `cancelled`         | User cancelled payment | (terminal) |
 
 ## Refund Reasons
 
@@ -291,23 +276,6 @@ RefundReason::OTHER         // Other reason
 ```
 
 ## Payment Management
-
-### Create a Refund
-
-```php
-use NepaliPayment;
-use JaapTech\NepaliPayment\Enums\RefundReason;
-
-$payment = Payment::find($paymentId);
-
-$refund = NepaliPayment::createRefund(
-    payment: $payment,
-    refundAmount: 500, // Partial refund
-    reason: RefundReason::USER_REQUEST,
-    notes: 'Customer requested refund',
-    requestedBy: auth()->id()
-);
-```
 
 ### Process Refund with Gateway
 
@@ -343,7 +311,6 @@ nepali_payment_enabled();
 
 // Find payments
 nepali_payment_find('ref-123');                    // by reference
-nepali_payment_find_by_gateway_id('txn-456');      // by gateway ID
 
 // Create payment
 nepali_payment_create(

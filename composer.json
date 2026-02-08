@@ -1,7 +1,8 @@
 {
     "name": "jaap-tech/laravel-nepali-payment",
+    "description": "Laravel package for integrating Nepali payment gateways like eSewa, Khalti, and ConnectIps.",
     "type": "library",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "require": {
         "php": "^8.1",
         "kbk/nepali-payment-gateway": "^1.0.2",

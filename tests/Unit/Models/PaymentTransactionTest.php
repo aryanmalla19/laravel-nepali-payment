@@ -81,7 +81,7 @@ class PaymentTransactionTest extends TestCase
         ]);
 
         PaymentTransaction::create([
-            'gateway' => 'ESEWA',
+            'gateway' => 'esewa',
             'status' => PaymentStatus::PENDING,
             'amount' => 200,
             'merchant_reference_id' => 'esewa-1',

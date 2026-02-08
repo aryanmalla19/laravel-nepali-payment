@@ -63,7 +63,7 @@ class PaymentManagerTest extends TestCase
     public function test_complete_payment_marks_payment_completed()
     {
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PROCESSING,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-123',
@@ -78,7 +78,7 @@ class PaymentManagerTest extends TestCase
     public function test_find_payment_by_reference_returns_payment()
     {
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 1000,
             'merchant_reference_id' => 'unique-ref',
@@ -101,7 +101,7 @@ class PaymentManagerTest extends TestCase
     public function test_get_payments_by_status_returns_builder()
     {
         PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::COMPLETED,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-1',
@@ -109,7 +109,7 @@ class PaymentManagerTest extends TestCase
         ]);
 
         PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 2000,
             'merchant_reference_id' => 'ref-2',
@@ -125,7 +125,7 @@ class PaymentManagerTest extends TestCase
     public function test_get_payments_by_status_with_string()
     {
         PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::FAILED,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-1',
@@ -187,7 +187,7 @@ class PaymentManagerTest extends TestCase
     public function test_get_payments_for_payable_returns_builder()
     {
         PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-1',
@@ -197,7 +197,7 @@ class PaymentManagerTest extends TestCase
         ]);
 
         PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 2000,
             'merchant_reference_id' => 'ref-2',

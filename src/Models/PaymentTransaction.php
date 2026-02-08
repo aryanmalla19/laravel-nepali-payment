@@ -3,6 +3,7 @@
 namespace JaapTech\NepaliPayment\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -10,7 +11,7 @@ use JaapTech\NepaliPayment\Enums\PaymentStatus;
 
 class PaymentTransaction extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $table = 'payment_transactions';
 

@@ -118,7 +118,7 @@ class GatewayFactoryTest extends TestCase
         $this->factory->make(NepaliPaymentGateway::KHALTI);
         $this->factory->forget(NepaliPaymentGateway::KHALTI);
 
-        $this->assertFalse($this->factory->isCached('KHALTI'));
+        $this->assertFalse($this->factory->isCached('khalti'));
     }
 
     public function test_flush_removes_all_cached_gateways()

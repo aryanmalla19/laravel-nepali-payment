@@ -15,7 +15,7 @@ class PaymentTransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => $this->faker->randomFloat(2, 10, 10000),
             'currency' => 'NPR',
@@ -35,21 +35,21 @@ class PaymentTransactionFactory extends Factory
     public function khalti(): static
     {
         return $this->state(fn (array $attributes) => [
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
         ]);
     }
 
     public function esewa(): static
     {
         return $this->state(fn (array $attributes) => [
-            'gateway' => 'ESEWA',
+            'gateway' => 'esewa',
         ]);
     }
 
     public function connectips(): static
     {
         return $this->state(fn (array $attributes) => [
-            'gateway' => 'CONNECTIPS',
+            'gateway' => 'connectips',
         ]);
     }
 

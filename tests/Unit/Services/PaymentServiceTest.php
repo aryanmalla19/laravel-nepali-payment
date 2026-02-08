@@ -27,7 +27,7 @@ class PaymentServiceTest extends TestCase
     public function test_create_payment_creates_record_in_database()
     {
         $response = $this->service->createPayment(
-            gateway: 'KHALTI',
+            gateway: 'khalti',
             amount: 1000,
             gatewayPayloadData: ['amount' => 1000, 'purchase_order_id' => 'order-123'],
             gatewayResponseData: ['pidx' => 'pidx-123', 'amount' => 1000],
@@ -36,7 +36,7 @@ class PaymentServiceTest extends TestCase
         $this->assertInstanceOf(PaymentTransaction::class, $response);
         $this->assertDatabaseHas('payment_transactions', [
             'id' => $response->id,
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'amount' => 1000,
             'status' => 'pending',
         ]);
@@ -45,7 +45,7 @@ class PaymentServiceTest extends TestCase
     public function test_create_payment_extracts_reference_id_from_pidx()
     {
         $response = $this->service->createPayment(
-            gateway: 'KHALTI',
+            gateway: 'khalti',
             amount: 1000,
             gatewayResponseData: ['pidx' => 'pidx-123-abc'],
         );
@@ -56,7 +56,7 @@ class PaymentServiceTest extends TestCase
     public function test_create_payment_extracts_reference_id_from_transaction_uuid()
     {
         $response = $this->service->createPayment(
-            gateway: 'ESEWA',
+            gateway: 'esewa',
             amount: 1000,
             gatewayResponseData: ['transaction_uuid' => 'txn-uuid-123'],
         );
@@ -67,7 +67,7 @@ class PaymentServiceTest extends TestCase
     public function test_create_payment_generates_uuid_when_no_reference_id_found()
     {
         $response = $this->service->createPayment(
-            gateway: 'KHALTI',
+            gateway: 'khalti',
             amount: 1000,
             gatewayResponseData: ['other_field' => 'value'],
         );
@@ -81,7 +81,7 @@ class PaymentServiceTest extends TestCase
         $responseData = ['pidx' => 'pidx-123', 'status' => 'success'];
 
         $payment = $this->service->createPayment(
-            gateway: 'KHALTI',
+            gateway: 'khalti',
             amount: 1000,
             gatewayPayloadData: $payload,
             gatewayResponseData: $responseData,
@@ -94,7 +94,7 @@ class PaymentServiceTest extends TestCase
     public function test_create_payment_associates_with_model()
     {
         $payment = $this->service->createPayment(
-            gateway: 'KHALTI',
+            gateway: 'khalti',
             amount: 1000,
             gatewayResponseData: ['pidx' => 'pidx-123'],
             model: null, // We'll test with a real model later
@@ -112,7 +112,7 @@ class PaymentServiceTest extends TestCase
         $this->expectExceptionMessage('Database integration is not enabled. Set NEPALI_PAYMENT_DATABASE_ENABLED=true in .env');
 
         $this->service->createPayment(
-            gateway: 'KHALTI',
+            gateway: 'khalti',
             amount: 1000,
         );
     }
@@ -120,7 +120,7 @@ class PaymentServiceTest extends TestCase
     public function test_record_payment_verification_updates_status_to_processing()
     {
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-123',
@@ -141,7 +141,7 @@ class PaymentServiceTest extends TestCase
     public function test_record_payment_verification_updates_status_to_failed()
     {
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-123',
@@ -164,7 +164,7 @@ class PaymentServiceTest extends TestCase
         config(['nepali-payment.database.enabled' => false]);
 
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-123',
@@ -183,7 +183,7 @@ class PaymentServiceTest extends TestCase
     public function test_complete_payment_updates_status_to_completed()
     {
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PROCESSING,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-123',
@@ -202,7 +202,7 @@ class PaymentServiceTest extends TestCase
         config(['nepali-payment.database.enabled' => false]);
 
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PROCESSING,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-123',
@@ -217,7 +217,7 @@ class PaymentServiceTest extends TestCase
     public function test_fail_payment_updates_status_to_failed()
     {
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-123',
@@ -236,7 +236,7 @@ class PaymentServiceTest extends TestCase
         config(['nepali-payment.database.enabled' => false]);
 
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 1000,
             'merchant_reference_id' => 'ref-123',
@@ -251,7 +251,7 @@ class PaymentServiceTest extends TestCase
     public function test_find_by_reference_returns_payment()
     {
         $payment = PaymentTransaction::create([
-            'gateway' => 'KHALTI',
+            'gateway' => 'khalti',
             'status' => PaymentStatus::PENDING,
             'amount' => 1000,
             'merchant_reference_id' => 'unique-ref-123',

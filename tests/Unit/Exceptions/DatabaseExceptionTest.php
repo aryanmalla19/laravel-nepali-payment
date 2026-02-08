@@ -11,10 +11,10 @@ class DatabaseExceptionTest extends TestCase
 {
     public function test_create_failed_returns_exception_with_correct_message()
     {
-        $exception = DatabaseException::createFailed('KHALTI', 'Connection timeout');
+        $exception = DatabaseException::createFailed('khalti', 'Connection timeout');
 
         $this->assertInstanceOf(DatabaseException::class, $exception);
-        $this->assertStringContainsString('KHALTI', $exception->getMessage());
+        $this->assertStringContainsString('khalti', $exception->getMessage());
         $this->assertStringContainsString('Connection timeout', $exception->getMessage());
     }
 

@@ -16,7 +16,7 @@ class KhaltiStrategy implements PaymentInterceptorStrategy
     public function buildPaymentData(array $data): array
     {
         return array_merge([
-            'success_url' => $this->config->get('nepali-payment.khalti.success_url'),
+            'return_url' => $this->config->get('nepali-payment.khalti.success_url'),
             'website_url' => $this->config->get('nepali-payment.khalti.website_url'),
         ], $data);
     }

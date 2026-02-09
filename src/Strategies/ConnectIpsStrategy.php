@@ -15,9 +15,8 @@ class ConnectIpsStrategy implements PaymentInterceptorStrategy
 
     public function buildPaymentData(array $data): array
     {
-        return array_merge([
-            'return_url' => $this->config->get('nepali-payment.connectips.return_url'),
-        ], $data);
+        // Add any ConnectIps specific data transformations here if needed in future
+        return $data;
     }
 
     public function extractReferenceId(array $data): ?string

@@ -12,7 +12,6 @@ A comprehensive Laravel package for integrating Nepali payment gateways (eSewa, 
 ✅ **Database Integration (Optional)**
 - Track payment history
 - Store gateway responses
-- Manage refunds
 - Polymorphic payment associations
 - UUID support
 
@@ -50,10 +49,14 @@ return [
     'esewa' => [
         'product_code' => env('ESEWA_PRODUCT_CODE'),
         'secret_key'   => env('ESEWA_SECRET_KEY'),
+        'success_url'   => env('ESEWA_SUCCESS_URL'),
+        'failure_url'   => env('ESEWA_FAILURE_URL'),
     ],
     'khalti' => [
         'secret_key' => env('KHALTI_SECRET_KEY'),
         'environment' => strtolower(env('KHALTI_ENVIRONMENT', 'test')),
+        'success_url'   => env('KHALTI_SUCCESS_URL'),
+        'website_url'   => env('KHALTI_WEBSITE_URL'),
     ],
     'connectips' => [
         'merchant_id' => env('CONNECTIPS_MERCHANT_ID'),
@@ -77,12 +80,16 @@ Add these to your `.env` file:
 ```
 ESEWA_PRODUCT_CODE=your_product_code
 ESEWA_SECRET_KEY=your_secret_key
+ESEWA_SUCCESS_URL=https://yourapp.com/payment/success # (optional)
+ESEWA_FAILURE_URL=https://yourapp.com/payment/failure # (optional)
 ```
 
 **Khalti:**
 ```
 KHALTI_SECRET_KEY=your_secret_key
 KHALTI_ENVIRONMENT=test  # or 'live'
+KHALTI_SUCCESS_URL=https://yourapp.com/payment/success # (optional)
+KHALTI_WEBSITE_URL=https://yourapp.com # (optional)
 ```
 
 **ConnectIps:**
@@ -110,9 +117,9 @@ use NepaliPayment;
 // Initiate eSewa payment
 $response = NepaliPayment::esewa()->payment([
     'amount' => 1000,
-    'transaction_uuid' => 'unique-id-123',
-    'success_url' => route('payment.success'),
-    'failure_url' => route('payment.failure'),
+    'transaction_uuid' => 'unique-id-123', # optional, can be generated automatically
+    'success_url' => route('payment.success'), # optional, can be set in config
+    'failure_url' => route('payment.failure'), # optional, can be set in config
 ]);
 
 // Redirect to payment gateway
@@ -139,29 +146,19 @@ Now you can track payments:
 ```php
 use NepaliPayment;
 
-
 // Initiate payment with gateway
 $response = NepaliPayment::esewa()->payment([
     'amount' => 1000,
-    'transaction_uuid' => $payment->reference_id,
-    'success_url' => route('payment.success'),
-    'failure_url' => route('payment.failure'),
+    'transaction_uuid' => 'unique-id-123', # optional, can be generated automatically
+    'success_url' => route('payment.success'), # optional, can be set in config
+    'failure_url' => route('payment.failure'), # optional, can be set in config
 ]);
 
 // Record verification
 $verification = NepaliPayment::esewa()->verify([
-    'product_code' => 'EPAYTEST',
     'total_amount' => 1000,
-    'transaction_uuid' => $payment->reference_id,
+    'transaction_uuid' => 'same-unique-id-123',
 ]);
-
-if ($verification->isSuccess()) {
-    NepaliPayment::completePayment(
-        $payment,
-        gatewayTransactionId: $verification->getTransactionId(),
-        responseData: $verification->toArray()
-    );
-}
 ```
 
 ## Database Models
@@ -211,94 +208,10 @@ $payment->markAsProcessing();
 $payment->markAsCompleted();
 $payment->markAsFailed('Reason for failure');
 $payment->markAsCancelled();
-$payment->markAsRefunded();
-
-// Refund information
-$payment->getTotalRefundedAmount();
-$payment->getRemainingRefundableAmount();
-$payment->hasRefunds();
 
 // Relationships
 $payment->payable;        // The associated model (User, Order, etc)
 $payment->refunds();      // All refunds for this payment
-```
-
-### PaymentRefund Model
-
-Tracks refunds separately for full audit trail.
-
-**Scopes:**
-
-```php
-PaymentRefund::completed()->get();
-PaymentRefund::pending()->get();
-PaymentRefund::failed()->get();
-PaymentRefund::processing()->get();
-```
-
-**Methods:**
-
-```php
-$refund = PaymentRefund::find($id);
-
-// Check status
-$refund->isCompleted();
-$refund->isPending();
-$refund->isFailed();
-
-// Update status
-$refund->markAsProcessing();
-$refund->markAsCompleted($gatewayRefundId = null);
-$refund->markAsFailed($reason = null);
-
-// Relationships
-$refund->payment;  // The associated payment
-```
-
-## Payment Statuses
-
-| Status              | Meaning | Transitions |
-|---------------------|---------|-------------|
-| `pending`           | Initial state, awaiting user payment | → processing, failed, cancelled |
-| `processing (paid)` | Payment verified, awaiting final confirmation | → completed, failed |
-| `completed`         | Payment successful ✓ | → refunded |
-| `failed`            | Payment failed | (terminal) |
-| `refunded`          | Payment refunded | (terminal) |
-| `cancelled`         | User cancelled payment | (terminal) |
-
-## Refund Reasons
-
-```php
-RefundReason::USER_REQUEST  // Customer requested refund
-RefundReason::DUPLICATE     // Payment processed twice
-RefundReason::ERROR         // System error
-RefundReason::OTHER         // Other reason
-```
-
-## Payment Management
-
-### Process Refund with Gateway
-
-```php
-// For Khalti (supports refund)
-try {
-    $response = NepaliPayment::khalti()->refund([
-        'transaction_id' => $payment->gateway_transaction_id,
-        'amount' => 500,
-    ]);
-
-    NepaliPayment::processRefund(
-        $refund,
-        $response->toArray(),
-        isSuccess: true
-    );
-} catch (\Exception $e) {
-    NepaliPayment::processRefund(
-        $refund,
-        ['error' => $e->getMessage()],
-        isSuccess: false
-    );
-}
 ```
 
 ## Helper Functions
@@ -311,23 +224,6 @@ nepali_payment_enabled();
 
 // Find payments
 nepali_payment_find('ref-123');                    // by reference
-
-// Create payment
-nepali_payment_create(
-    'esewa',
-    1000,
-    paymentData: ['description' => 'Order #123'],
-    payableType: 'App\Models\User',
-    payableId: auth()->id()
-);
-
-// Create refund
-nepali_payment_refund(
-    $payment,
-    500,
-    'user_request',
-    'Customer request'
-);
 
 // Query payments
 nepali_payment_get_by_status('completed')->paginate();
@@ -414,7 +310,6 @@ class PaymentController extends Controller
     {
         // Get gateway response
         $verification = NepaliPayment::esewa()->verify([
-            'product_code' => config('nepali-payment.esewa.product_code'),
             'total_amount' => $payment->amount,
             'transaction_uuid' => $payment->reference_id,
         ]);
@@ -426,14 +321,11 @@ class PaymentController extends Controller
                 responseData: $verification->toArray()
             );
 
-            // Update order status
-            $payment->payable->update(['status' => 'paid']);
-
             return redirect()->route('order.show', $payment->payable)
                 ->with('success', 'Payment completed successfully!');
         } else {
             NepaliPayment::failPayment($payment, 'Gateway verification failed');
-            
+
             return redirect()->route('payment.create', $payment->payable)
                 ->with('error', 'Payment verification failed');
         }

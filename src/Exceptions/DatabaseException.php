@@ -20,13 +20,6 @@ class DatabaseException extends \Exception
         );
     }
 
-    public static function refundFailed(string $paymentId, string $reason): self
-    {
-        return new self(
-            "Failed to create refund for payment '{$paymentId}'. Reason: {$reason}"
-        );
-    }
-
     public static function notFound(string $identifier): self
     {
         return new self("Payment not found with identifier: {$identifier}");

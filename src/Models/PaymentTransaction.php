@@ -38,14 +38,6 @@ class PaymentTransaction extends Model
     }
 
     /**
-     * Get all refunds for this payment.
-     */
-    public function refunds(): HasMany
-    {
-        return $this->hasMany(PaymentRefund::class);
-    }
-
-    /**
      * Scope: Filter payments by gateway.
      */
     public function scopeByGateway($query, string $gateway)
@@ -129,14 +121,6 @@ class PaymentTransaction extends Model
     }
 
     /**
-     * Check if payment can be refunded.
-     */
-    public function canBeRefunded(): bool
-    {
-        return $this->status === PaymentStatus::COMPLETED;
-    }
-
-    /**
      * Mark payment as processing.
      */
     public function markAsProcessing(): void
@@ -177,42 +161,5 @@ class PaymentTransaction extends Model
         $this->update([
             'status' => PaymentStatus::CANCELLED,
         ]);
-    }
-
-    /**
-     * Mark payment as refunded.
-     */
-    public function markAsRefunded(): void
-    {
-        $this->update([
-            'status' => PaymentStatus::REFUNDED,
-            'refunded_at' => now(),
-        ]);
-    }
-
-    /**
-     * Get the total refunded amount.
-     */
-    public function getTotalRefundedAmount(): float
-    {
-        return $this->refunds()
-            ->where('refund_status', 'completed')
-            ->sum('refund_amount');
-    }
-
-    /**
-     * Get the remaining refundable amount.
-     */
-    public function getRemainingRefundableAmount(): float
-    {
-        return max(0, $this->amount - $this->getTotalRefundedAmount());
-    }
-
-    /**
-     * Check if payment has any completed refunds.
-     */
-    public function hasRefunds(): bool
-    {
-        return $this->refunds()->where('refund_status', 'completed')->exists();
     }
 }

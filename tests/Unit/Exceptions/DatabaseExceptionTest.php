@@ -27,15 +27,6 @@ class DatabaseExceptionTest extends TestCase
         $this->assertStringContainsString('Record not found', $exception->getMessage());
     }
 
-    public function test_refund_failed_returns_exception_with_correct_message()
-    {
-        $exception = DatabaseException::refundFailed('456-uuid', 'Refund error');
-
-        $this->assertInstanceOf(DatabaseException::class, $exception);
-        $this->assertStringContainsString('456-uuid', $exception->getMessage());
-        $this->assertStringContainsString('Refund error', $exception->getMessage());
-    }
-
     public function test_disabled_returns_exception_with_correct_message()
     {
         $exception = DatabaseException::disabled();

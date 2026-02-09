@@ -32,43 +32,6 @@ if (! function_exists('nepali_payment_find')) {
     }
 }
 
-if (! function_exists('nepali_payment_create')) {
-    /**
-     * Create a new payment record.
-     *
-     * @throws DatabaseException
-     */
-    function nepali_payment_create(
-        string $gateway,
-        float $amount,
-        array $gatewayPayloadData = [],
-        array $gatewayResponseData = [],
-        ?Model $model = null,
-    ): PaymentTransaction {
-        return NepaliPayment::createPayment(
-            $gateway,
-            $amount,
-            $gatewayPayloadData,
-            $gatewayResponseData,
-            $model,
-        );
-    }
-}
-
-if (! function_exists('nepali_payment_refund')) {
-    /**
-     * Create a refund for a payment.
-     */
-    function nepali_payment_refund(
-        PaymentTransaction $payment,
-        float $refundAmount,
-        string $reason = 'user_request',
-        ?string $notes = null,
-    ): PaymentRefund {
-        return NepaliPayment::createRefund($payment, $refundAmount, $reason, $notes);
-    }
-}
-
 if (! function_exists('nepali_payment_get_by_status')) {
     /**
      * Get all payments by status.

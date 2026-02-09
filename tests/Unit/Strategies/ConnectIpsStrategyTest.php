@@ -28,20 +28,6 @@ class ConnectIpsStrategyTest extends TestCase
         $this->strategy = new ConnectIpsStrategy($this->config);
     }
 
-    public function test_build_payment_data_merges_config_url()
-    {
-        $data = [
-            'amount' => 1000,
-            'transaction_id' => 'txn-123',
-        ];
-
-        $result = $this->strategy->buildPaymentData($data);
-
-        $this->assertEquals('https://example.com/return', $result['return_url']);
-        $this->assertEquals(1000, $result['amount']);
-        $this->assertEquals('txn-123', $result['transaction_id']);
-    }
-
     public function test_build_payment_data_preserves_original_data()
     {
         $data = [

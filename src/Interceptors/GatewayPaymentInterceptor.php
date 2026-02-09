@@ -30,7 +30,7 @@ class GatewayPaymentInterceptor
     /**
      * Intercept payment method call to auto-log to database.
      *
-     * @throws DatabaseException
+     * @throws DatabaseException|\Throwable
      */
     public function payment(array $data)
     {

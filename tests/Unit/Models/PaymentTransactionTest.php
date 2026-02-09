@@ -300,28 +300,6 @@ class PaymentTransactionTest extends TestCase
         $this->assertTrue($transaction->isPending());
     }
 
-    public function test_can_be_refunded_returns_true_only_for_completed()
-    {
-        $completed = PaymentTransaction::create([
-            'gateway' => 'khalti',
-            'status' => PaymentStatus::COMPLETED,
-            'amount' => 100,
-            'merchant_reference_id' => 'completed-1',
-            'initiated_at' => now(),
-        ]);
-
-        $pending = PaymentTransaction::create([
-            'gateway' => 'khalti',
-            'status' => PaymentStatus::PENDING,
-            'amount' => 100,
-            'merchant_reference_id' => 'pending-1',
-            'initiated_at' => now(),
-        ]);
-
-        $this->assertTrue($completed->canBeRefunded());
-        $this->assertFalse($pending->canBeRefunded());
-    }
-
     // ========== State Transition Methods ==========
 
     public function test_mark_as_processing_updates_status_and_timestamp()
@@ -370,22 +348,6 @@ class PaymentTransactionTest extends TestCase
 
         $this->assertEquals(PaymentStatus::FAILED, $transaction->fresh()->status);
         $this->assertNotNull($transaction->fresh()->failed_at);
-    }
-
-    public function test_mark_as_refunded_updates_status_and_timestamp()
-    {
-        $transaction = PaymentTransaction::create([
-            'gateway' => 'khalti',
-            'status' => PaymentStatus::COMPLETED,
-            'amount' => 100,
-            'merchant_reference_id' => 'test-1',
-            'initiated_at' => now(),
-        ]);
-
-        $transaction->markAsRefunded();
-
-        $this->assertEquals(PaymentStatus::REFUNDED, $transaction->fresh()->status);
-        $this->assertNotNull($transaction->fresh()->refunded_at);
     }
 
     public function test_mark_as_cancelled_updates_status()

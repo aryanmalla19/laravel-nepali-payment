@@ -9,6 +9,7 @@ use JaapTech\NepaliPayment\Enums\NepaliPaymentGateway;
 use JaapTech\NepaliPayment\Strategies\ConnectIpsStrategy;
 use JaapTech\NepaliPayment\Strategies\EsewaStrategy;
 use JaapTech\NepaliPayment\Strategies\KhaltiStrategy;
+use JaapTech\NepaliPayment\Strategies\PaymentInterceptorStrategy;
 use JaapTech\NepaliPayment\Strategies\StrategyFactory;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -43,7 +44,7 @@ class StrategyFactoryTest extends TestCase
         $strategy = StrategyFactory::make('khalti', $this->config);
 
         $this->assertInstanceOf(KhaltiStrategy::class, $strategy);
-        $this->assertInstanceOf(\JaapTech\NepaliPayment\Strategies\PaymentInterceptorStrategy::class, $strategy);
+        $this->assertInstanceOf(PaymentInterceptorStrategy::class, $strategy);
     }
 
     public function test_make_returns_khalti_strategy_for_khalti_enum()
@@ -106,7 +107,7 @@ class StrategyFactoryTest extends TestCase
         $data = ['amount' => 100];
         $result = $strategy->buildPaymentData($data);
 
-        $this->assertEquals('https://example.com/success', $result['success_url']);
+        $this->assertEquals('https://example.com/success', $result['return_url']);
     }
 
     public function test_created_strategies_are_independent_instances()

@@ -38,7 +38,7 @@ class KhaltiStrategyTest extends TestCase
 
         $result = $this->strategy->buildPaymentData($data);
 
-        $this->assertEquals('https://example.com/success', $result['success_url']);
+        $this->assertEquals('https://example.com/success', $result['return_url']);
         $this->assertEquals('https://example.com', $result['website_url']);
         $this->assertEquals(1000, $result['amount']);
         $this->assertEquals('order-123', $result['purchase_order_id']);

@@ -2,10 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\Model;
-use JaapTech\NepaliPayment\Exceptions\DatabaseException;
-use JaapTech\NepaliPayment\Facades\NepaliPayment;
-use JaapTech\NepaliPayment\Models\PaymentRefund;
 use JaapTech\NepaliPayment\Models\PaymentTransaction;
 
 if (! function_exists('nepali_payment_enabled')) {

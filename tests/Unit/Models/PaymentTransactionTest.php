@@ -7,7 +7,6 @@ namespace JaapTech\NepaliPayment\Tests\Unit\Models;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
-use JaapTech\NepaliPayment\Models\PaymentRefund;
 use JaapTech\NepaliPayment\Models\PaymentTransaction;
 use JaapTech\NepaliPayment\Tests\TestCase;
 

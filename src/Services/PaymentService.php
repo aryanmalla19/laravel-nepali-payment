@@ -8,6 +8,7 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
+use JaapTech\NepaliPayment\Events\PaymentCompletedEvent;
 use JaapTech\NepaliPayment\Exceptions\DatabaseException;
 use JaapTech\NepaliPayment\Models\PaymentTransaction;
 
@@ -101,6 +102,8 @@ class PaymentService
                 'status' => PaymentStatus::COMPLETED,
                 'completed_at' => now(),
             ]);
+
+            event(new PaymentCompletedEvent($payment));
         } catch (\Exception $e) {
             throw DatabaseException::updateFailed($payment->id, $e->getMessage());
         }

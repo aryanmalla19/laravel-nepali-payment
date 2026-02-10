@@ -201,7 +201,6 @@ $payment = Payment::find($id);
 $payment->isCompleted();
 $payment->isFailed();
 $payment->isPending();
-$payment->canBeRefunded();
 
 // Update status
 $payment->markAsProcessing();
@@ -211,7 +210,6 @@ $payment->markAsCancelled();
 
 // Relationships
 $payment->payable;        // The associated model (User, Order, etc)
-$payment->refunds();      // All refunds for this payment
 ```
 
 ## Helper Functions
@@ -240,7 +238,6 @@ use JaapTech\NepaliPayment\Events\{
     PaymentProcessingEvent,
     PaymentCompletedEvent,
     PaymentFailedEvent,
-    PaymentRefundedEvent,
 };
 
 // Listen to events in EventServiceProvider
@@ -251,9 +248,6 @@ protected $listen = [
     ],
     PaymentFailedEvent::class => [
         \App\Listeners\NotifyPaymentFailure::class,
-    ],
-    PaymentRefundedEvent::class => [
-        \App\Listeners\ProcessRefundNotification::class,
     ],
 ];
 

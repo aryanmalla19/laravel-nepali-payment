@@ -107,6 +107,8 @@ class PaymentManager
     /**
      * Get all payments by status.
      *
+     * @return Builder<PaymentTransaction>
+     *
      * @throws DatabaseException
      */
     public function getPaymentsByStatus(PaymentStatus|string $status): Builder
@@ -116,6 +118,8 @@ class PaymentManager
 
     /**
      * Get all payments by gateway.
+     *
+     * @return Builder<PaymentTransaction>
      *
      * @throws RuntimeException|DatabaseException If gateway is not supported
      */
@@ -131,6 +135,8 @@ class PaymentManager
 
     /**
      * Get all payments for a specific payable model.
+     *
+     * @return Builder<PaymentTransaction>
      *
      * @throws DatabaseException
      */

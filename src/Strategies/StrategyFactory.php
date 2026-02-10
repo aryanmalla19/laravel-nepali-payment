@@ -17,9 +17,8 @@ class StrategyFactory
     /**
      * Create a strategy instance for the given gateway.
      *
-     * @param string|NepaliPaymentGateway $gateway Gateway name or enum
-     * @param Repository $config Configuration repository
-     * @return PaymentInterceptorStrategy
+     * @param  string|NepaliPaymentGateway  $gateway  Gateway name or enum
+     * @param  Repository  $config  Configuration repository
      *
      * @throws RuntimeException If gateway is not supported
      */

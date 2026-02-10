@@ -2,16 +2,32 @@
 
 namespace JaapTech\NepaliPayment\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use JaapTech\NepaliPayment\Enums\PaymentStatus;
 
+/**
+ * @property int $id
+ * @property PaymentStatus $status
+ * @property int $amount
+ * @property string|null $gateway
+ * @property array|null $gateway_payload
+ * @property array|null $gateway_response
+ * @property string|null $merchant_reference_id
+ * @property string|null $payable_type
+ * @property int|null $payable_id
+ * @property Carbon|null $initiated_at
+ * @property Carbon|null $verified_at
+ * @property Carbon|null $completed_at
+ * @property Carbon|null $failed_at
+ */
 class PaymentTransaction extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
+    use HasUuids;
 
     protected $table = 'payment_transactions';
 

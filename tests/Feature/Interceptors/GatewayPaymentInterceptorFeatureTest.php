@@ -30,22 +30,22 @@ class GatewayPaymentInterceptorFeatureTest extends TestCase
     public function test_interceptor_is_returned_from_payment_manager()
     {
         $manager = app(PaymentManager::class);
-        
+
         $interceptor = $manager->gateway('khalti');
-        
+
         $this->assertInstanceOf(GatewayPaymentInterceptor::class, $interceptor);
     }
 
     public function test_interceptor_is_returned_for_all_gateways()
     {
         $manager = app(PaymentManager::class);
-        
+
         $esewa = $manager->gateway('esewa');
         $this->assertInstanceOf(GatewayPaymentInterceptor::class, $esewa);
-        
+
         $khalti = $manager->gateway('khalti');
         $this->assertInstanceOf(GatewayPaymentInterceptor::class, $khalti);
-        
+
         $connectips = $manager->gateway('connectips');
         $this->assertInstanceOf(GatewayPaymentInterceptor::class, $connectips);
     }
@@ -53,10 +53,10 @@ class GatewayPaymentInterceptorFeatureTest extends TestCase
     public function test_interceptor_creates_new_instance_each_time()
     {
         $manager = app(PaymentManager::class);
-        
+
         $interceptor1 = $manager->gateway('khalti');
         $interceptor2 = $manager->gateway('khalti');
-        
+
         // Each call should return a new interceptor instance
         $this->assertNotSame($interceptor1, $interceptor2);
     }
@@ -65,7 +65,7 @@ class GatewayPaymentInterceptorFeatureTest extends TestCase
     {
         $manager = app(PaymentManager::class);
         $interceptor = $manager->gateway('khalti');
-        
+
         $this->assertTrue(method_exists($interceptor, 'payment'));
     }
 
@@ -73,7 +73,7 @@ class GatewayPaymentInterceptorFeatureTest extends TestCase
     {
         $manager = app(PaymentManager::class);
         $interceptor = $manager->gateway('khalti');
-        
+
         $this->assertTrue(method_exists($interceptor, 'verify'));
     }
 
@@ -81,7 +81,7 @@ class GatewayPaymentInterceptorFeatureTest extends TestCase
     {
         $manager = app(PaymentManager::class);
         $interceptor = $manager->gateway('khalti');
-        
+
         // Test that the interceptor is properly configured with strategy
         $this->assertInstanceOf(GatewayPaymentInterceptor::class, $interceptor);
     }
@@ -112,11 +112,11 @@ class GatewayPaymentInterceptorFeatureTest extends TestCase
     public function test_interceptor_gateway_caching_behavior()
     {
         $manager = app(PaymentManager::class);
-        
+
         // Get gateway through manager multiple times
         $gateway1 = $manager->gateway('khalti');
         $gateway2 = $manager->gateway('khalti');
-        
+
         // Interceptors should be different instances but use same underlying gateway
         $this->assertNotSame($gateway1, $gateway2);
         $this->assertInstanceOf(GatewayPaymentInterceptor::class, $gateway1);
@@ -126,10 +126,10 @@ class GatewayPaymentInterceptorFeatureTest extends TestCase
     public function test_interceptor_with_different_gateways_has_different_strategies()
     {
         $manager = app(PaymentManager::class);
-        
+
         $esewa = $manager->gateway('esewa');
         $khalti = $manager->gateway('khalti');
-        
+
         // Both should be interceptors but with different internal strategies
         $this->assertInstanceOf(GatewayPaymentInterceptor::class, $esewa);
         $this->assertInstanceOf(GatewayPaymentInterceptor::class, $khalti);

@@ -58,7 +58,7 @@ abstract class TestCase extends Orchestra
             'app_id' => 'test_app',
             'app_name' => 'Test App',
             'password' => 'test_password',
-            'private_key_path' => __DIR__ . '/TestCase.php',
+            'private_key_path' => __DIR__.'/TestCase.php',
             'environment' => 'test',
             'return_url' => 'https://example.com/return',
         ]);

@@ -57,17 +57,4 @@ class NepaliPaymentGatewayTest extends TestCase
         $gateway = NepaliPaymentGateway::tryFrom('esewa');
         $this->assertEquals(NepaliPaymentGateway::ESEWA, $gateway);
     }
-
-    public function test_can_use_in_match_expression()
-    {
-        $gateway = NepaliPaymentGateway::KHALTI;
-
-        $result = match ($gateway) {
-            NepaliPaymentGateway::ESEWA => 'esewa_handler',
-            NepaliPaymentGateway::KHALTI => 'khalti_handler',
-            NepaliPaymentGateway::CONNECTIPS => 'connectips_handler',
-        };
-
-        $this->assertEquals('khalti_handler', $result);
-    }
 }

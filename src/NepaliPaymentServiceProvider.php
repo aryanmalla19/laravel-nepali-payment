@@ -10,6 +10,7 @@ use JaapTech\NepaliPayment\Factories\GatewayFactory;
 use JaapTech\NepaliPayment\Services\PaymentManager;
 use JaapTech\NepaliPayment\Services\PaymentService;
 use JaapTech\NepaliPayment\Services\PaymentTransactionQueryService;
+
 class NepaliPaymentServiceProvider extends ServiceProvider
 {
     public function register(): void

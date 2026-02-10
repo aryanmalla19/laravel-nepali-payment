@@ -59,6 +59,8 @@ class PaymentTransactionQueryService
     /**
      * Get all payments for a specific payable model.
      *
+     * @return Builder<PaymentTransaction>
+     *
      * @throws DatabaseException
      */
     public function getForPayable(string $payableType, int|string $payableId): Builder

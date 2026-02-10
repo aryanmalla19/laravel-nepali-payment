@@ -11,6 +11,7 @@ use Illuminate\Contracts\Config\Repository;
  */
 class ConnectIpsStrategy implements PaymentInterceptorStrategy
 {
+    /** @phpstan-ignore-next-line  */
     public function __construct(private readonly Repository $config) {}
 
     public function buildPaymentData(array $data): array

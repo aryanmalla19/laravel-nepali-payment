@@ -13,7 +13,7 @@ class DatabaseException extends \Exception
         );
     }
 
-    public static function updateFailed(string $paymentId, string $reason): self
+    public static function updateFailed(int $paymentId, string $reason): self
     {
         return new self(
             "Failed to update payment record '{$paymentId}'. Reason: {$reason}"

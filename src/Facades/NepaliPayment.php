@@ -21,9 +21,9 @@ use Kbk\NepaliPaymentGateway\Epay\Khalti;
  * @method static void failPayment(PaymentTransaction $payment, ?string $reason = null)
  * @method static PaymentTransaction|null findPaymentByReference(string $referenceId)
  * @method static PaymentTransaction|null findPaymentByGatewayId(string $gatewayTransactionId)
- * @method static Builder getPaymentsByStatus(PaymentStatus|string $status)
- * @method static Builder getPaymentsByGateway(string $gateway)
- * @method static Builder getPaymentsForPayable(string $payableType, int|string $payableId)
+ * @method static Builder<PaymentTransaction> getPaymentsByStatus(PaymentStatus|string $status)
+ * @method static Builder<PaymentTransaction> getPaymentsByGateway(string $gateway)
+ * @method static Builder<PaymentTransaction> getPaymentsForPayable(string $payableType, int|string $payableId)
  */
 class NepaliPayment extends Facade
 {

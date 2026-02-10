@@ -62,6 +62,7 @@ class GatewayPaymentInterceptor
             Log::error("Payment interception failed: {$e->getMessage()}", [
                 'data' => $data,
             ]);
+
             throw $e;
         }
     }
@@ -74,7 +75,9 @@ class GatewayPaymentInterceptor
         // Step 1: Call actual gateway verify method
         $response = $this->gateway->verify($data);
 
-        if  (! $this->isDatabaseEnabled) return $response;
+        if (! $this->isDatabaseEnabled) {
+            return $response;
+        }
 
         // Step 2: Update payment record
         try {

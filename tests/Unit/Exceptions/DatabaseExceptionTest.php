@@ -20,10 +20,10 @@ class DatabaseExceptionTest extends TestCase
 
     public function test_update_failed_returns_exception_with_correct_message()
     {
-        $exception = DatabaseException::updateFailed('123-uuid', 'Record not found');
+        $exception = DatabaseException::updateFailed(123, 'Record not found');
 
         $this->assertInstanceOf(DatabaseException::class, $exception);
-        $this->assertStringContainsString('123-uuid', $exception->getMessage());
+        $this->assertStringContainsString('123', $exception->getMessage());
         $this->assertStringContainsString('Record not found', $exception->getMessage());
     }
 

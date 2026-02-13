@@ -1,5 +1,5 @@
 {
-  "preset": "laravel",
+  "preset": "per",
   "rules": {
     "ordered_imports": {
       "sort_algorithm": "alpha"

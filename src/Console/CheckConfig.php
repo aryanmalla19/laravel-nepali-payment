@@ -42,7 +42,7 @@ class CheckConfig extends Command
             }
 
             if ($missingKeys) {
-                $this->error("- $gateway: missing keys: ".implode(', ', $missingKeys));
+                $this->error("- $gateway: missing keys: " . implode(', ', $missingKeys));
             } else {
                 $this->info("- $gateway: ✅ configured");
             }

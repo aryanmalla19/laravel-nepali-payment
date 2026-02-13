@@ -12,7 +12,7 @@ class NepaliPaymentGatewayTest extends TestCase
     public function test_nepali_payment_gateway_has_all_expected_cases()
     {
         $cases = NepaliPaymentGateway::cases();
-        $values = array_map(fn ($case) => $case->value, $cases);
+        $values = array_map(fn($case) => $case->value, $cases);
 
         $this->assertContains('esewa', $values);
         $this->assertContains('khalti', $values);

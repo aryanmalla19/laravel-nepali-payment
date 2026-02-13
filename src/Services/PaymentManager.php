@@ -155,13 +155,13 @@ class PaymentManager
     private function validateGateway(string $gatewayName): void
     {
         $supportedGateways = array_map(
-            fn (NepaliPaymentGateway $gateway) => $gateway->value,
+            fn(NepaliPaymentGateway $gateway) => $gateway->value,
             NepaliPaymentGateway::cases()
         );
 
         if (! in_array($gatewayName, $supportedGateways)) {
             throw new RuntimeException(
-                "Unsupported gateway: {$gatewayName}. Supported gateways: ".implode(', ', $supportedGateways)
+                "Unsupported gateway: {$gatewayName}. Supported gateways: " . implode(', ', $supportedGateways)
             );
         }
     }

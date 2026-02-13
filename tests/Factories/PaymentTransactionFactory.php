@@ -34,35 +34,35 @@ class PaymentTransactionFactory extends Factory
 
     public function khalti(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'gateway' => 'khalti',
         ]);
     }
 
     public function esewa(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'gateway' => 'esewa',
         ]);
     }
 
     public function connectips(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'gateway' => 'connectips',
         ]);
     }
 
     public function pending(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => PaymentStatus::PENDING,
         ]);
     }
 
     public function processing(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => PaymentStatus::PROCESSING,
             'verified_at' => now(),
         ]);
@@ -70,7 +70,7 @@ class PaymentTransactionFactory extends Factory
 
     public function completed(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => PaymentStatus::COMPLETED,
             'verified_at' => now(),
             'completed_at' => now(),
@@ -79,7 +79,7 @@ class PaymentTransactionFactory extends Factory
 
     public function failed(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => PaymentStatus::FAILED,
             'failed_at' => now(),
         ]);
@@ -87,7 +87,7 @@ class PaymentTransactionFactory extends Factory
 
     public function refunded(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'status' => PaymentStatus::REFUNDED,
             'completed_at' => now(),
             'refunded_at' => now(),
@@ -96,7 +96,7 @@ class PaymentTransactionFactory extends Factory
 
     public function withPayable(string $type, int|string $id): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'payable_type' => $type,
             'payable_id' => $id,
         ]);

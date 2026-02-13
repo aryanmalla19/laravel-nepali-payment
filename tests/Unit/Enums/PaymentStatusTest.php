@@ -12,7 +12,7 @@ class PaymentStatusTest extends TestCase
     public function test_payment_status_has_all_expected_cases()
     {
         $cases = PaymentStatus::cases();
-        $values = array_map(fn ($case) => $case->value, $cases);
+        $values = array_map(fn($case) => $case->value, $cases);
 
         $this->assertContains('pending', $values);
         $this->assertContains('processing (paid)', $values);

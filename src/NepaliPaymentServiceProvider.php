@@ -15,7 +15,7 @@ class NepaliPaymentServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/nepali-payment.php', 'nepali-payment');
+        $this->mergeConfigFrom(__DIR__ . '/../config/nepali-payment.php', 'nepali-payment');
 
         // Register GatewayFactory with config dependency
         $this->app->singleton(GatewayFactory::class, function ($app) {
@@ -50,16 +50,16 @@ class NepaliPaymentServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__.'/../config/nepali-payment.php' => $this->app->configPath('nepali-payment.php'),
+            __DIR__ . '/../config/nepali-payment.php' => $this->app->configPath('nepali-payment.php'),
         ], 'nepali-payment-config');
 
         // Publish migrations
         $this->publishes([
-            __DIR__.'/../database/migrations' => $this->app->databasePath('migrations'),
+            __DIR__ . '/../database/migrations' => $this->app->databasePath('migrations'),
         ], 'nepali-payment-migrations');
 
         // Load migrations from package
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

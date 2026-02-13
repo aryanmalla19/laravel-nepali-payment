@@ -15,7 +15,7 @@ abstract class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'JaapTech\\NepaliPayment\\Tests\\Factories\\'.class_basename($modelName).'Factory'
+            fn(string $modelName) => 'JaapTech\\NepaliPayment\\Tests\\Factories\\' . class_basename($modelName) . 'Factory'
         );
     }
 
@@ -58,7 +58,7 @@ abstract class TestCase extends Orchestra
             'app_id' => 'test_app',
             'app_name' => 'Test App',
             'password' => 'test_password',
-            'private_key_path' => __DIR__.'/TestCase.php',
+            'private_key_path' => __DIR__ . '/TestCase.php',
             'environment' => 'test',
             'return_url' => 'https://example.com/return',
         ]);
@@ -66,6 +66,6 @@ abstract class TestCase extends Orchestra
 
     protected function defineDatabaseMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 }

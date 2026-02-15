@@ -49,6 +49,7 @@ class GatewayPaymentInterceptor
                         amount: $data['total_amount'] ?? $data['amount'] ?? 0,
                         gatewayPayloadData: $data,
                         gatewayResponseData: $response->toArray(),
+                        model: $data['model'] ?? null,
                     );
                 } catch (\Exception $e) {
                     throw DatabaseException::createFailed($this->gatewayName, $e->getMessage());

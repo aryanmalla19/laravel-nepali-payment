@@ -14,7 +14,6 @@
         "nepali payment sdk"
     ],
     "type": "library",
-    "version": "1.0.0",
     "require": {
         "php": "^8.1",
         "kbk/nepali-payment-gateway": "^1.0.2",

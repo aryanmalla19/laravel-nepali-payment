@@ -46,7 +46,7 @@ class PaymentService
                 'merchant_reference_id' => $referenceId,
                 'gateway_response' => $gatewayResponseData,
                 'gateway_payload' => $gatewayPayloadData,
-                'payable_type' => $model?->getTable() ?? null,
+                'payable_type' => $model ? $model::class : null,
                 'payable_id' => $model?->getKey() ?? null,
                 'initiated_at' => now(),
             ]);

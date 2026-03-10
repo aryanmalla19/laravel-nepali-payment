@@ -12,7 +12,7 @@ class CheckConfig extends Command
 
     protected $description = 'Check Nepali Payment package configuration and credentials';
 
-    public function handle()
+    public function handle(): int
     {
         $gateways = ['esewa', 'khalti', 'connectips'];
 
